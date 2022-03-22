@@ -5,3 +5,14 @@ theme: kinvolk
 params:
   description: My new project!
 assetsDir: assets
+
+menu:
+  main:
+    - name: Blog
+      url: /blog
+      identifier: blog
+      weight: -500
+    - name: Docs
+      url: /docs
+      identifier: docs
+      weight: -200
