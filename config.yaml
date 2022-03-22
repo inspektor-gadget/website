@@ -1,0 +1,26 @@
+baseURL: http://example.org/
+languageCode: en-us
+title: My Quirky Project
+theme: kinvolk
+assetsDir: assets
+params:
+  description: My new project!
+  #docs:
+    # github_edit_url: https://github.com/flatcar-linux/flatcar-docs/edit/main/docs/
+    # issues_url: https://github.com/kinvolk/flatcar/issues/new?labels=kind/docs
+    # external_docs:
+    # - repo: https://github.com/flatcar-linux/flatcar-docs.git
+    #   name: "latest"
+    #   branch: "main"
+    #   dir: "docs"
+
+menu:
+  main:
+    - name: Blog
+      url: /blog
+      identifier: blog
+      weight: -500
+    - name: Docs
+      url: /docs
+      identifier: docs
+      weight: -200
