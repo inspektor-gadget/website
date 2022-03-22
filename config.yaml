@@ -1,0 +1,7 @@
+baseURL: http://example.org/
+languageCode: en-us
+title: My Quirky Project
+theme: kinvolk
+params:
+  description: My new project!
+assetsDir: assets
