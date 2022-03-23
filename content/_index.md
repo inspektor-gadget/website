@@ -22,13 +22,15 @@ style:
 hero:
   merge: true # Will merge these hero definitions into this section pages
   style:
-    class: header-bg-flatcar
-    bgcolor: '#12172c'
+    class: header-bg-ig
+    bgcolor: '#391628'
     fgcolor: '#08a2af'
     descriptioncolor: white
 quick_features:
   title: What is a Container Linux?
   description: The introduction of container-based infrastructure was a paradigm shift. A Container-optimized Linux distribution is the best foundation for cloud native infrastructure.
+  shape_color: '#FEEAEF'
+  icon_color: '#F72E5C'
   features:
     - text: A minimal OS image only includes the tools needed to run containers. No package manager, no configuration drift.
       icon: container
