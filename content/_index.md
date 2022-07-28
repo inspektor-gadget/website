@@ -4,21 +4,7 @@ link: https://kinvolk.github.io/inspektor-gadget/
 logo: '/media/brand-logo.svg'
 logo_bg_img: 'product-bg-1'
 tagline: ''
-description: Inspektor Gadget is a collection of tools, or gadgets, to debug and inspect Kubernetes applications.
-cta: Learn more
-cta_aria_label: Learn more about Inspektor Gadget
-docs:
-  link: https://flatcar-linux.org/docs/latest/
-  action_text: Get Started
-support:
-  link: https://flatcar-linux.org
-  action_text: Visit Website
-style:
-  bgcolor: "#072365"
-  fgcolor: "#ffffff"
-  accent:
-    bgcolor: "#041552"
-    fgcolor: "#09bac8"
+description: eBPF-based collection of _gadgets_ to debug and inspect Kubernetes apps and resources
 hero:
   merge: true # Will merge these hero definitions into this section pages
   style:
@@ -27,23 +13,23 @@ hero:
     fgcolor: '#08a2af'
     descriptioncolor: white
 quick_features:
-  title: What is a Container Linux?
-  description: The introduction of container-based infrastructure was a paradigm shift. A Container-optimized Linux distribution is the best foundation for cloud native infrastructure.
+  title: The Inspektor has arrived
+  description: All the tools you need to dig into the toughest problems on Kubernetes 
   shape_color: '#FEEAEF'
   icon_color: '#F72E5C'
   features:
-    - text: A minimal OS image only includes the tools needed to run containers. No package manager, no configuration drift.
-      icon: container
+    - text: A comprehensive suite of "gadgets" of investigate any issue
+      icon: container # Need a flashlight image like from the logo
       shape: shape-blue-1
-    - text: Delivering the OS on an immutable filesystem eliminates a whole category of security vulnerabilities.
-      icon: filesystem
+    - text: Map low-level Linux resources to higher-level Kubernetes resources
+      icon: filesystem # Need an bullseye, maybe with an arrow like from the logo
       shape: shape-blue-2
-    - text: Automated atomic updates mean you get the latest security updates and open source technologies.
-      shape: shape-blue-3
+    - text: Easy to use interface to integrate into your tooling
+      shape: shape-blue-3 
       icon: update
 highlights:
   - icon: 'lock'
-    title: Secure by Design
+    title: Get to the bottom of things
     description: Immutable filesystem, minimal footprint, automated security updates are just some of the built-in security features
   - icon: 'wrench'
     title: Built for Containers
@@ -52,12 +38,12 @@ highlights:
     title: Automated Updates
     description: Keep your cluster secure by always running an OS with the latest security updates and features
 features:
-  - title: The Container Infrastructure OS
+  - title: Powerful suite of gadgets for conquiring Kubernetes
     icon: container-feature.svg
     style:
       fgcolor: '#46c1c7'
-      bgcolor: '#12172c'
-    description: 'Inspektor Gadget is designed from the ground up for running container workloads. It fully embraces the container paradigm, including only what is required to run containers.'
+      bgcolor: '#391628'
+    description: 'Inspektor Gadget provides a suite of tools .'
     highlights:
       - icon: flatcar-app
         title: Immutable infrastructure
