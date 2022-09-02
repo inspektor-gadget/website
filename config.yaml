@@ -1,7 +1,7 @@
 baseURL: /
 languageCode: en-us
 title: My Quirky Project
-theme: kinvolk
+theme: inspektor-gadget
 assetsDir: assets
 params:
   description: My new project!
