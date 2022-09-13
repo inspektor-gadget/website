@@ -1,26 +1,33 @@
 baseURL: /
 languageCode: en-us
-title: My Quirky Project
+title: Inspektor Gadget
 theme: inspektor-gadget
 assetsDir: assets
 params:
-  description: My new project!
-  #docs:
-    # github_edit_url: https://github.com/flatcar-linux/flatcar-docs/edit/main/docs/
-    # issues_url: https://github.com/kinvolk/flatcar/issues/new?labels=kind/docs
-    # external_docs:
-    # - repo: https://github.com/flatcar-linux/flatcar-docs.git
-    #   name: "latest"
-    #   branch: "main"
-    #   dir: "docs"
-
+  description: Project website for Inspektor Gadget
+  docs:
+    github_edit_url: https://github.com/kinvolk/inspektor-gadget/edit/main/docs/
+    issues_url: https://github.com/kinvolk/inspektor-gadget/issues/new?labels=kind/docs
+    external_docs:
+    - repo: https://github.com/kinvolk/inspektor-gadget.git
+      name: "latest"
+      branch: "main"
+      dir: "docs"
 menu:
   main:
     - name: Blog
       url: /blog
       identifier: blog
       weight: -500
+    - name: Gadgets
+      url: /#gadgets
+      identifier: gadgets
+      weight: -200
+    - name: Github
+      url: https://github.com/kinvolk/inspektor-gadget
+      identifier: github
+      weight: -100
     - name: Docs
       url: /docs
       identifier: docs
-      weight: -200
+      weight: -100

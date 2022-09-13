@@ -74,6 +74,9 @@
                     </div>
                 </div>
                 {{ end }}
+                {{- with .feature_matrix -}}
+                    {{- partial "expandable-features.html" (dict "ctx" . "dataDir" $.Site.Data ) -}}
+                {{- end -}}
             </div>
         </div>
     </div>

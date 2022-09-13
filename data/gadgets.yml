@@ -1,0 +1,61 @@
+inspektor-gadget:
+  - category: advise
+    gadgets:
+      - name: network-policy
+        description: Monitors the network activity in the specified namespaces and records a summary of TCP and UDP traffic in a file
+      - name: seccomp-profile
+        description: Records syscalls that are issued in a specified pod and then uses this information to generate the corresponding seccomp profile
+  - category: audit
+    gadgets:
+      - name: seccomp
+        description: Provides a stream of events with syscalls that had their seccomp filters generating an audit log
+  - category: profile
+    gadgets:
+      - name: block-io
+        description:  gathers information about the usage of the block device I/O, generating a histogram distribution of I/O latency
+      - name: cpu
+        description:  Takes samples of the stack traces
+  - category: snapshot
+    gadgets:
+      - name: process
+        description: Gathers information about running processes
+      - name: socket
+        description: Gathers information about TCP and UDP sockets
+  - category: top
+    gadgets:
+      - name: block-io
+        description: Track the containers generating the most block device input/output
+      - name: bpf
+        description: Track the usage and performance of eBPF programs
+      - name: file
+        description: Track reads and writes by file, with container details.
+      - name: tcp
+        description: Track active TCP connections
+  - category: trace
+    gadgets:
+      - name: bind
+        description: Streams socket binding syscalls
+      - name: capabilities
+        description: Traces capability security checks that are triggered by applications running in Kubernetes Pods
+      - name: dns
+        description: Trace information about DNS requests performed by the different pods
+      - name: exec
+        description: Streams new processes creation events
+      - name: fsslower
+        description: Trace open, read, write and fsync operations slower than a threshold
+      - name: mount
+        description: Trace mount and umount system calls
+      - name: network-graph
+        description: Monitors the network activity in the specified pods and records the list of TCP connections and UDP streams
+      - name: oomkill
+        description: Trace when OOM killer is triggered and kills a process
+      - name: open
+        description: Trace open system calls.
+      - name: signal
+        description: Trace signals received by processes
+      - name: sni
+        description: Trace Server Name Indication (SNI) from TLS requests
+      - name: tcp
+        description: Trace tcp gadget can be used to monitor tcp connections, as it shows connect, accept and close events related to TCP connections
+      - name: tcpconnect
+        description: Trace connect system calls

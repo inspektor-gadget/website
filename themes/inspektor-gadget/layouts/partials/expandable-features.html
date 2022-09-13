@@ -1,0 +1,35 @@
+<h2 class="pt-5 text-center" id="gadgets">{{ .ctx.title }}</h2>
+<p class="text-center">{{ .ctx.description }}</p>
+<div class="accordion" id="gadgetInfo">
+    {{- $gadget_data := index .dataDir .ctx.data -}}
+    {{- range $gadget_data -}}
+    {{- range . -}}
+    <div class="card">
+        <div class="card-header group-heading" id="heading_{{ .category }}">
+            <h5 class="mb-0">
+                <div class="" type="button" data-toggle="collapse" data-target="#category_{{ .category }}"
+                    aria-expanded="true" aria-controls="category_{{ .category }}">
+                    {{ .category }}
+                </button>
+            </h5>
+        </div>
+        <div id="category_{{ .category }}" class="collapse" aria-labelledby="label_{{ .category }}"
+            data-parent="#gadgetInfo">
+            <div class="card-body">
+                {{- range .gadgets -}}
+                <div class="card border-secondary mb-3">
+                    <div class="card-header group-heading" id="heading_{{ .category }}">            
+                        {{ .name }}
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ .description }}</p>
+                    </div>
+            </div>
+                {{- end -}}
+            </div>
+        </div>
+    </div>
+    {{- end -}}
+    {{- end -}}
+</div>
+</div>

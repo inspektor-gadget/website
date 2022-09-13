@@ -24,8 +24,8 @@
               {{ if $hero.icon }}
                 <img class="hero-icon" src="/images/{{ $hero.icon }}" alt="Flatcar Logo">
               {{ end }}
-              <h1>{{ $title }}</h1>
-              <h2 {{ if $styles.descriptioncolor }}style="color: {{ $styles.descriptioncolor }}"{{ end }}>{{ $description }}</h2>
+              <h1 {{ if $styles.titlecolor }}style="color: {{ $styles.titlecolor }}"{{ end }}>{{ $title }}</h1>
+              <h2 {{ if $styles.descriptioncolor }}style="color: {{ $styles.descriptioncolor }}"{{ end }}>{{ $description | markdownify }}</h2>
               {{ if $hero.button }}
                   <a class="hero-button btn {{ default "btn-blue" $hero.button.class }}" href="{{ $hero.button.link }}">{{ $hero.button.text }}</a>
               {{ end }}

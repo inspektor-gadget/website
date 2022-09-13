@@ -10,7 +10,7 @@
 
       {{- $path := print "**/" .Params.postImage -}}
       {{- $image := resources.GetMatch $path -}}
-      {{- $imagePath := path.Join "/media/splash" .Params.postImage -}}
+      {{- $imagePath := path.Join "/media/" .Params.postImage -}}
       {{- $scaleImage := true -}}
       {{- if eq (index .Params "scaleImage") false -}}
         {{- $scaleImage = false -}}
@@ -28,9 +28,21 @@
       <div class="row flex-wrap-reverse article__wrap">
         <div class="col-12">
           <div class="article-content mx-auto" aria-describedby="blogtitle">
+          {{- if not .Params.original_link -}}
             {{ .Content }}
           </div>
-
+          {{- else -}}
+            <p class="alert alert-secondary font-italic mb-4"> This article was originally posted at <a href="{{ .Params.original_link }}">the Kinvolk blog</a></p> 
+            {{ .Summary }}
+            <p class="read-more mt-4">
+              <a href="{{ .Params.original_link }}" aria-label="Read more of {{ .Title }}">Continue reading the original article
+                <svg class="btn-arrow__icon" viewBox="0 0 12 15">
+                  <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/images/arrow.svg#arrow"></use>
+                </svg>
+              </a>
+            </p>
+          </div>
+          {{- end -}}
           <div class="article__author p-0 my-7 mx-auto text-center">
             {{ partial "authors.html" (dict "message" "WRITTEN BY" "context" . "with_date" true ) }}
             <p class="aside__title">Tags:
