@@ -45,6 +45,7 @@
   img {
     height: 50px;
     width: auto;
+    min-width: 50px;
   }
 
   @include media-breakpoint-up(sm) {
