@@ -1,7 +1,7 @@
 baseURL: /
 languageCode: en-us
 title: Inspektor Gadget
-theme: inspektor-gadget
+theme: kinvolk-generic
 assetsDir: assets
 params:
   description: Project website for Inspektor Gadget
