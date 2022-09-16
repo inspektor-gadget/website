@@ -12,3 +12,6 @@ docs:
 
 run:
 	hugo server --buildFuture --watch --disableFastRender --config ./config.yaml\,./tmp_modules.yaml
+
+update-theme:
+	git subtree pull  --prefix themes/kinvolk-generic/ https://github.com/kinvolk/websites-theme.git main --squash
