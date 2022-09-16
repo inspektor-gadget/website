@@ -1,5 +1,5 @@
 all: getdeps docs
-	hugo
+	hugo --config ./themes/kinvolk-generic/base-config.yaml,./config.yaml
 
 getdeps:
 	pip3 install --upgrade pyyaml
@@ -11,7 +11,7 @@ docs:
 	python3 ./tools/docs-fetcher.py ./config.yaml
 
 run:
-	hugo server --buildFuture --watch --disableFastRender --config ./config.yaml\,./tmp_modules.yaml
+	hugo server --buildFuture --watch --disableFastRender --config ./themes/kinvolk-generic/base-config.yaml,./config.yaml\,./tmp_modules.yaml
 
 update-theme:
 	git subtree pull  --prefix themes/kinvolk-generic/ https://github.com/kinvolk/websites-theme.git main --squash
