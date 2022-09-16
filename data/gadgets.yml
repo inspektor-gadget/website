@@ -1,28 +1,33 @@
 inspektor-gadget:
   - category: advise
-    gadgets:
+    description: Recommend system configurations based on collected information
+    items:
       - name: network-policy
         description: Monitors the network activity in the specified namespaces and records a summary of TCP and UDP traffic in a file
       - name: seccomp-profile
         description: Records syscalls that are issued in a specified pod and then uses this information to generate the corresponding seccomp profile
   - category: audit
-    gadgets:
+    description: Audit a subsystem
+    items:
       - name: seccomp
         description: Provides a stream of events with syscalls that had their seccomp filters generating an audit log
   - category: profile
-    gadgets:
+    description: Profile various subsystems
+    items:
       - name: block-io
         description:  gathers information about the usage of the block device I/O, generating a histogram distribution of I/O latency
       - name: cpu
         description:  Takes samples of the stack traces
   - category: snapshot
-    gadgets:
+    description: Take a snapshot of various subsystems
+    items:
       - name: process
         description: Gathers information about running processes
       - name: socket
         description: Gathers information about TCP and UDP sockets
   - category: top
-    gadgets:
+    description: Gather, sort and periodically report events according to a given criteria
+    items:
       - name: block-io
         description: Track the containers generating the most block device input/output
       - name: bpf
@@ -32,7 +37,8 @@ inspektor-gadget:
       - name: tcp
         description: Track active TCP connections
   - category: trace
-    gadgets:
+    description: Trace and print various system events
+    items:
       - name: bind
         description: Streams socket binding syscalls
       - name: capabilities

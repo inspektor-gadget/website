@@ -1,35 +1,37 @@
-<h2 class="pt-5 text-center" id="gadgets">{{ .ctx.title }}</h2>
+{{- $data_name := .ctx.data -}}
+<h2 class="pt-5 text-center expandable-features-header" id="{{ $data_name }}">{{ .ctx.title }}</h2>
 <p class="text-center">{{ .ctx.description }}</p>
-<div class="accordion" id="gadgetInfo">
-    {{- $gadget_data := index .dataDir .ctx.data -}}
-    {{- range $gadget_data -}}
+{{- with .ctx.learn_more_link -}}
+<a class="more-link m-4" href="{{ . }}">Learn more about gadget</a>
+{{- end -}}
+<div class="accordion expandable-features" id="{{ $data_name }}Info">
+    {{- $data := index .dataDir $data_name -}}
+    {{- range $data -}}
     {{- range . -}}
-    <div class="card">
-        <div class="card-header group-heading" id="heading_{{ .category }}">
-            <h5 class="mb-0">
-                <div class="" type="button" data-toggle="collapse" data-target="#category_{{ .category }}"
-                    aria-expanded="true" aria-controls="category_{{ .category }}">
-                    {{ .category }}
-                </button>
-            </h5>
+    <div class="group">
+        <div class="border group-heading mb-3 p-3" id="heading_{{ .category }}">
+            <div class="group-info" type="button" data-toggle="collapse" data-target="#category_{{ .category }}"
+                aria-expanded="false" aria-controls="category_{{ .category }}">
+                <h4>{{ .category | humanize }} Gadgets <span class="gadget-count font-weight-light">({{ len .items }})</span> <span class="group-chevron float-right fas fa-angle-down"></span></h4>
+                <p class="mb-0">{{ .description }}</p>
+            </div>
         </div>
         <div id="category_{{ .category }}" class="collapse" aria-labelledby="label_{{ .category }}"
-            data-parent="#gadgetInfo">
-            <div class="card-body">
-                {{- range .gadgets -}}
-                <div class="card border-secondary mb-3">
-                    <div class="card-header group-heading" id="heading_{{ .category }}">            
+            data-parent="#{{ $data_name }}Info">
+            <div class="">
+                {{- range .items -}}
+                <div class="group-item border-secondary mb-4 px-2">
+                    <div class="item-header">
                         {{ .name }}
                     </div>
-                    <div class="card-body">
-                        <p class="card-text">{{ .description }}</p>
+                    <div class="item-description">
+                        <p class="">{{ .description }}</p>
                     </div>
-            </div>
+                </div>
                 {{- end -}}
             </div>
         </div>
     </div>
     {{- end -}}
     {{- end -}}
-</div>
 </div>
