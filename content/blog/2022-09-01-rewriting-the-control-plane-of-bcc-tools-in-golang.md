@@ -6,7 +6,6 @@ draft = false
 tags = ["eBPF", "bpf", "bcc", "CO-RE", "go", "golang", "Inspektor Gadget", "gadget"]
 title = "Rewriting the Control Plane of BCC Tools in Golang"
 postImage = "2022-09-01-bcc-golang-controlplane-banner.jpg"
-original_link = "https://kinvolk.io/blog/2022/09/rewriting-the-control-plane-of-bcc-tools-in-golang/"
 +++
 
 

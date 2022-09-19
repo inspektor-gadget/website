@@ -7,7 +7,6 @@ tags = ["kubernetes", "inspektor-gadget", "bpf", "security"]
 title = "Writing Kubernetes network policies with Inspektor Gadget’s Network Policy Advisor"
 topics = ["containers", "security"]
 postImage = "pietro-jeng.jpg"
-original_link = "https://kinvolk.io/blog/2020/03/writing-kubernetes-network-policies-with-inspektor-gadgets-network-policy-advisor/"
 +++
 
 At KubeCon EU 2016 in London, I gave [a first talk about using BPF and

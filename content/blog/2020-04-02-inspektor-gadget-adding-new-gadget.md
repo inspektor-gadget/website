@@ -7,7 +7,6 @@ tags = ["kubernetes", "inspektor-gadget", "bpf", "bcc"]
 title = "Adding new BCC-based gadgets in Inspektor Gadget"
 topics = ["containers", "security"]
 postImage = "rana-sawalha-W_-6PWGbYaU-unsplash-1600.jpg"
-original_link = "https://kinvolk.io/blog/2020/04/adding-new-bcc-based-gadgets-in-inspektor-gadget/"
 +++
 
 When asked for a good source to learn how to write BPF code I send people to the BPF

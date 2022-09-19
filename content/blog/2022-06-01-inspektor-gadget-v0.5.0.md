@@ -6,7 +6,6 @@ draft = false
 tags = ["eBPF", "bpf", "inspektor gadget", "bcc"]
 title = "What's new in Inspektor Gadget v0.5.0?"
 postImage = "ig-v0.5.0-banner.jpg"
-original_link = "https://kinvolk.io/blog/2022/06/whats-new-in-inspektor-gadget-v0.5.0/"
 +++
 
 We released Inspektor Gadget v0.5.0 some days ago. This release took

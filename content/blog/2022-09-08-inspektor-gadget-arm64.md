@@ -6,7 +6,6 @@ draft = false
 tags = ["eBPF", "bpf", "inspektor gadget", "arm64", "arm"]
 title = "Porting an eBPF-based application to arm64: our experience with Inspektor Gadget"
 postImage = "inspektor-gadget-arm64.jpg"
-original_link = "https://kinvolk.io/blog/2022/09/porting-an-ebpf-based-application-to-arm64-our-experience-with-inspektor-gadget/"
 +++
 
 Nowadays, the `arm` architecture is everywhere, from your pocket to

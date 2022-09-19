@@ -7,7 +7,6 @@ description = "Inside Kinvolk Labs: Investigating Kubernetes performance issues 
 draft = false
 date = "2020-04-24T17:14:00+02:00"
 postImage = "kinvolk-labs-performance.jpg"
-original_link = "https://kinvolk.io/blog/2020/04/inside-kinvolk-labs-investigating-kubernetes-performance-issues-with-bpf/"
 +++
 
 One of the things we do in the Kinvolk Labs team is provide expert technical
