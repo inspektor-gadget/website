@@ -4,7 +4,7 @@ link: https://kinvolk.github.io/inspektor-gadget/
 logo: '/media/brand-logo.svg'
 logo_bg_img: 'product-bg-1'
 tagline: ''
-description: eBPF-based collection of _gadgets_ to debug and inspect Kubernetes apps and resources
+description: A collection of eBPF-based _gadgets_ to debug and inspect Kubernetes apps and resources
 hero:
   merge: true # Will merge these hero definitions into this section pages
   style:
