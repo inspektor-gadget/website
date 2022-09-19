@@ -35,6 +35,7 @@ menu:
       url: https://github.com/kinvolk/inspektor-gadget
       identifier: github
       weight: -100
+      pre: github
     - name: Docs
       url: /docs
       identifier: docs
