@@ -2,7 +2,7 @@
 <h2 class="pt-5 text-center expandable-features-header" id="{{ $data_name }}">{{ .ctx.title }}</h2>
 <p class="text-center">{{ .ctx.description }}</p>
 {{- with .ctx.learn_more_link -}}
-<a class="more-link m-4" href="{{ . }}">Learn more about gadget</a>
+<a class="more-link m-4" href="{{ . }}">Go to the docs »</a>
 {{- end -}}
 <div class="accordion expandable-features" id="{{ $data_name }}Info">
     {{- $data := index .dataDir $data_name -}}
