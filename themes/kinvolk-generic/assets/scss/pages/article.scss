@@ -75,7 +75,7 @@
   .article__product-link:hover {
     @include media-breakpoint-up(md) {
       span {
-        color: $yellow;
+        color: $info;
       }
     }
   }
@@ -145,7 +145,7 @@
     }
 
     a:hover {
-      color: $branding-main;
+      color: $branding-main-darker;
       text-decoration: none;
     }
 

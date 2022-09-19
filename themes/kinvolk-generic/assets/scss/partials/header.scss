@@ -49,7 +49,7 @@
 
 header {
   &.blackbg {
-    background: $black;
+    background: $branding-main-bg;
   }
 }
 
@@ -71,7 +71,7 @@ main > *.header-bg-grid:first-child {
     url(/images/hero-plus.svg) right 150px / calc(100px + 5%) auto no-repeat,
     linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 75%, rgba(0,0,0,1) 100%),
     url(/images/grid.svg)
-    $black;
+    $branding-main-bg;
   // We need to have it begin at height-of-screen above the beginning because
   // of the mobile version's menu, which will scroll it all the way down.
   // i.e. if we don't have it above the screen for the length of its height,
@@ -85,14 +85,14 @@ main > *.header-bg-grid:first-child {
       url(/images/hero-plus.svg) right 150px / calc(150px + 5%) auto no-repeat,
       linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 75%, rgba(0,0,0,1) 100%),
       url(/images/grid.svg)
-      $black;
+      $branding-main-bg;
   }
 
   @include media-breakpoint-down(md) {
     background:
       linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 75%, rgba(0,0,0,1) 100%),
       url(/images/grid.svg)
-      $black;
+      $branding-main-bg;
   }
 }
 
@@ -175,7 +175,7 @@ main > *.header-bg-ig:first-child {
   }
 
   &.collapsing {
-    background: $black;
+    background: $branding-main-bg;
   }
 }
 
@@ -207,7 +207,7 @@ main > *.header-bg-ig:first-child {
     .header {
       position: fixed;
       height: 100%;
-      background: $black;
+      background: $branding-main-bg;
       overflow: hidden auto;
     }
 
@@ -221,7 +221,7 @@ main > *.header-bg-ig:first-child {
     }
 
     .mobile-menu {
-      background: $black;
+      background: $branding-main-bg;
       height: 20px;
 
       > span {

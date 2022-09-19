@@ -36,7 +36,7 @@ $headings-font-weight:   $font-weight-bold;
 $blue:    #09bac8;
 $pink:    #de1040;
 $red:     #eb1a45;
-$green:   #198806;
+$green:   #01BF83;
 $darkergreen: #168203;
 $yellow:  #fff200;
 $cyan:    #23ecfa;
@@ -46,16 +46,16 @@ $gray:    #c4c4c4;
 $gold:   #BE8900;
 
 
-$branding-main-darker: #007d88;
+$branding-main-darker: #F72E5C;
 $branding-dark: #34002C;
 $branding-main-bg: $branding-dark;
-$branding-main: #08a2af;
+$branding-main: #EC83AB;
 
 $primary: $black;
 $success: $branding-main;
-$info:    $cyan;
+$info:    $green;
 $warning: $yellow;
-$danger:  $red;
+$danger:  $branding-main-darker;
 
 // Body
 

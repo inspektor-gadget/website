@@ -9,7 +9,7 @@ hero:
   merge: true # Will merge these hero definitions into this section pages
   style:
     class: header-bg-ig
-    bgcolor: '#391628'
+    bgcolor: '#34002C'
     fgcolor: '#EC83AB'
     titlecolor: '#EC83AB'
     descriptioncolor: white
@@ -34,7 +34,7 @@ features:
     feature_matrix: gadgets.yml
     style:
       fgcolor: '#EC83AB'
-      bgcolor: '#391628'
+      bgcolor: '#34002C'
     description: 'Inspektor Gadget provides a wide selection of BPF tools to dig deep into your Kubernetes cluster'
     feature_matrix:
       data: gadgets
