@@ -39,6 +39,6 @@ features:
     feature_matrix:
       data: gadgets
       title: The Gadgets
-      learn_more_link: https://github.com/kinvolk/inspektor-gadget#the-gadgets
+      learn_more_link: https://www.inspektor-gadget.io/docs/latest/guides/
       description: Find information about all the Inspektor Gadget gadgets organized into their corrosponding categories
 ---
