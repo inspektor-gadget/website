@@ -3,6 +3,7 @@ languageCode: en-us
 title: Inspektor Gadget
 theme: kinvolk-generic
 assetsDir: assets
+copyright: Microsoft Inc. All Rights Reserved.
 params:
   description: Project website for Inspektor Gadget
   docs:
