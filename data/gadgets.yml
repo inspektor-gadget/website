@@ -1,52 +1,52 @@
 inspektor-gadget:
   - category: advise
-    description: Recommend system configurations based on collected information
+    description: Advise gadgets suggest different system configurations by capturing and analyzing data from the host
     items:
       - name: network-policy
         description: Monitors the network activity in the specified namespaces and records a summary of TCP and UDP traffic in a file
       - name: seccomp-profile
         description: Records syscalls that are issued in a specified pod and then uses this information to generate the corresponding seccomp profile
   - category: audit
-    description: Audit a subsystem
+    description: Audit gadgets help to audit specific functionalities or security settings
     items:
       - name: seccomp
         description: Provides a stream of events with syscalls that had their seccomp filters generating an audit log
   - category: profile
-    description: Profile various subsystems
+    description: Profile gadgets provide a way to measure the performance of a sub-system. These gadgets capture system events for a period and print a report
     items:
       - name: block-io
-        description:  gathers information about the usage of the block device I/O, generating a histogram distribution of I/O latency
+        description: Gathers information about the usage of the block device I/O, generating a histogram distribution of I/O latency
       - name: cpu
         description:  Takes samples of the stack traces
   - category: snapshot
-    description: Take a snapshot of various subsystems
+    description: Snapshot gadgets capture and print the status of a system at a specific point in time
     items:
       - name: process
         description: Gathers information about running processes
       - name: socket
         description: Gathers information about TCP and UDP sockets
   - category: top
-    description: Gather, sort and periodically report events according to a given criteria
+    description: Top gadgets show the current activity sorted by the highest to the lowest in the resource being observed, generating the output every few seconds
     items:
       - name: block-io
         description: Track the containers generating the most block device input/output
       - name: bpf
         description: Track the usage and performance of eBPF programs
       - name: file
-        description: Track reads and writes by file, with container details.
+        description: Track reads and writes by file, with container details
       - name: tcp
         description: Track active TCP connections
   - category: trace
-    description: Trace and print various system events
+    description: Trace gadgets capture and output a stream system events
     items:
       - name: bind
-        description: Streams socket binding syscalls
+        description: Trace the kernel functions performing socket binding
       - name: capabilities
-        description: Traces capability security checks that are triggered by applications running in Kubernetes Pods
+        description: Trace security capability checks
       - name: dns
-        description: Trace information about DNS requests performed by the different pods
+        description: Trace DNS requests events
       - name: exec
-        description: Streams new processes creation events
+        description: Trace process invocation events
       - name: fsslower
         description: Trace open, read, write and fsync operations slower than a threshold
       - name: mount
