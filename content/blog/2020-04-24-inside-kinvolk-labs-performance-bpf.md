@@ -108,9 +108,7 @@ for filtering packets at the data link layer. Many people are familiar with the
 layer, but Netfilter also has the command `ebtables` for the firewall rules at
 the data link layer.
 
-<figure class="img-fluid" role="presentation">
-	<img src="/media/ebtables.png" class="img-fluid" alt="">
-</figure>
+{{< figure src="/media/ebtables.png" class="img-fluid">}}
 
 This gives the idea to check the bridging firewall rules with `ebtables -L`. On
 the bad node, I notice the following:
