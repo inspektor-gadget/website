@@ -45,6 +45,10 @@ a.more-link {
     color: $highlight_color;
 }
 
+.group-info[type="button"] {
+    -webkit-appearance: none;
+}
+
 .group-info[aria-expanded="false"] .fa-angle-down {
     transform: rotate(0deg);
     transition: 0.5s;
