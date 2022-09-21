@@ -95,7 +95,7 @@
     {{ end }}
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="{{ $.Site.Params.favicon }}" />
+    <link rel="shortcut icon" href="/media/{{ default "brand-icon.svg" $.Site.Params.favicon }}" />
 </head>
 
 <body class="{{ if .IsHome }} home-page {{ end }}{{ .Type }} {{ .Kind }}">

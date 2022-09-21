@@ -4,6 +4,7 @@ title: Inspektor Gadget
 assetsDir: assets
 copyright: Microsoft Inc. All Rights Reserved.
 params:
+  favicon: brand-icon.svg
   description: Project website for Inspektor Gadget
   docs:
     github_edit_url: https://github.com/kinvolk/inspektor-gadget/edit/main/docs/
