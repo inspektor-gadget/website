@@ -107,7 +107,8 @@ signal.Notify(exit, syscall.SIGINT, syscall.SIGTERM)
 
 And that's pretty much it. This is the full code of the example:
 
-```golang
+{{< code_caption caption="[Got to source](https://github.com/kinvolk/inspektor-gadget/blob/main/examples/gadgets/basic/trace/exec/exec.go)" >}}
+{{< highlight go >}}
 package main
 
 import (
@@ -150,9 +151,8 @@ func main() {
 	signal.Notify(exit, syscall.SIGINT, syscall.SIGTERM)
 	<-exit
 }
-```
-
-[examples/gadgets/basic/trace/exec/exec.go](https://github.com/kinvolk/inspektor-gadget/blob/main/examples/gadgets/basic/trace/exec/exec.go)
+{{< /highlight >}}
+{{< /code_caption >}}
 
 That's all, so let's compile and execute it:
 
