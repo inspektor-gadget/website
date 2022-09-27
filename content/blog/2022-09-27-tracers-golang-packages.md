@@ -249,7 +249,8 @@ defer containerCollection.Close()
 
 The full code is the following one:
 
-```golang
+{{< code_caption caption="[Got to source](https://github.com/kinvolk/inspektor-gadget/blob/main/examples/container-collection/container-collection.go)" >}}
+{{< highlight go >}}
 package main
 
 import (
@@ -312,9 +313,8 @@ func main() {
 	signal.Notify(exit, syscall.SIGINT, syscall.SIGTERM)
 	<-exit
 }
-```
-
-[examples/container-collection/container-collection.go](https://github.com/kinvolk/inspektor-gadget/blob/main/examples/container-collection/container-collection.go).
+{{< /highlight >}}
+{{< /code_caption >}}
 
 Let's compile and start it:
 
@@ -415,7 +415,8 @@ if err != nil {
 defer tracer.Stop()
 ```
 
-```golang
+{{< code_caption caption="[Got to source](https://github.com/kinvolk/inspektor-gadget/blob/main/examples/gadgets/withfilter/trace/exec/exec.go)" >}}
+{{< highlight go >}}
 package main
 
 import (
@@ -530,9 +531,8 @@ func main() {
 	signal.Notify(exit, syscall.SIGINT, syscall.SIGTERM)
 	<-exit
 }
-```
-
-[examples/gadgets/withfilter/trace/exec/exec.go](https://github.com/kinvolk/inspektor-gadget/blob/main/examples/gadgets/withfilter/trace/exec/exec.go).
+{{< /highlight >}}
+{{< /code_caption >}}
 
 It can be compiled again with `go build .`. This time it needs a
 `--containername` parameter:
@@ -568,7 +568,7 @@ columns we want to print:
 
 ```golang
 // Create a formatter. It's the component that converts events to columns.
-colNames := []string{"container", "pid", "ppid", "pcomm", "ret", "args"}
+colNames := []string{"container", "pid", "ppid", "comm", "ret", "args"}
 formatter := textcolumns.NewFormatter(
 	types.GetColumns().GetColumnMap(),
 	textcolumns.WithDefaultColumns(colNames),
@@ -588,8 +588,8 @@ eventCallback := func(event types.Event) {
 
 And that's it. This is the full code of the example:
 
-```golang
-
+{{< code_caption caption="[Got to source](https://github.com/kinvolk/inspektor-gadget/blob/main/examples/gadgets/formatter/trace/exec/exec.go)" >}}
+{{< highlight go >}}
 package main
 
 import (
@@ -668,7 +668,7 @@ func main() {
 	defer containerCollection.Close()
 
 	// Create a formatter. It's the component that converts events to columns.
-	colNames := []string{"container", "pid", "ppid", "pcomm", "ret", "args"}
+	colNames := []string{"container", "pid", "ppid", "comm", "ret", "args"}
 	formatter := textcolumns.NewFormatter(
 		types.GetColumns().GetColumnMap(),
 		textcolumns.WithDefaultColumns(colNames),
@@ -714,9 +714,8 @@ func main() {
 	signal.Notify(exit, os.Interrupt, syscall.SIGTERM)
 	<-exit
 }
-```
-
-[examples/gadgets/formatter/trace/exec/exec.go](https://github.com/kinvolk/inspektor-gadget/blob/main/examples/gadgets/formatter/trace/exec/exec.go)
+{{< /highlight >}}
+{{< /code_caption >}}
 
 This can be compiled with the same command as above:
 
