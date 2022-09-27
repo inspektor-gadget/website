@@ -107,7 +107,7 @@ signal.Notify(exit, syscall.SIGINT, syscall.SIGTERM)
 
 And that's pretty much it. This is the full code of the example:
 
-{{< code_caption caption="[Got to source](https://github.com/kinvolk/inspektor-gadget/blob/main/examples/gadgets/basic/trace/exec/exec.go)" >}}
+{{< code_caption caption="[Go to source](https://github.com/kinvolk/inspektor-gadget/blob/main/examples/gadgets/basic/trace/exec/exec.go)" >}}
 {{< highlight go >}}
 package main
 
@@ -249,7 +249,7 @@ defer containerCollection.Close()
 
 The full code is the following one:
 
-{{< code_caption caption="[Got to source](https://github.com/kinvolk/inspektor-gadget/blob/main/examples/container-collection/container-collection.go)" >}}
+{{< code_caption caption="[Go to source](https://github.com/kinvolk/inspektor-gadget/blob/main/examples/container-collection/container-collection.go)" >}}
 {{< highlight go >}}
 package main
 
@@ -415,7 +415,7 @@ if err != nil {
 defer tracer.Stop()
 ```
 
-{{< code_caption caption="[Got to source](https://github.com/kinvolk/inspektor-gadget/blob/main/examples/gadgets/withfilter/trace/exec/exec.go)" >}}
+{{< code_caption caption="[Go to source](https://github.com/kinvolk/inspektor-gadget/blob/main/examples/gadgets/withfilter/trace/exec/exec.go)" >}}
 {{< highlight go >}}
 package main
 
@@ -588,7 +588,7 @@ eventCallback := func(event types.Event) {
 
 And that's it. This is the full code of the example:
 
-{{< code_caption caption="[Got to source](https://github.com/kinvolk/inspektor-gadget/blob/main/examples/gadgets/formatter/trace/exec/exec.go)" >}}
+{{< code_caption caption="[Go to source](https://github.com/kinvolk/inspektor-gadget/blob/main/examples/gadgets/formatter/trace/exec/exec.go)" >}}
 {{< highlight go >}}
 package main
 
