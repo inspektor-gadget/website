@@ -1,0 +1,18 @@
+.captioned-code {
+    .highlight {
+        pre {
+            margin-bottom: 0rem;
+        }
+    }
+    .code-caption {
+        display: block;
+        margin-top: 0.2rem;
+        margin-bottom: 1rem;
+        margin-left: 0.5rem;
+        margin-right: 0.5rem;
+        font-size: 1rem;
+        a {
+            color: $branding-main-darker;
+        }
+    }
+}
