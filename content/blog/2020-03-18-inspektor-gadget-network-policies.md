@@ -15,7 +15,7 @@ presenting a proof of concept to introduce various degraded network scenarios
 in specific pods for testing the reliability of apps. There was not a lot of
 BPF + Kubernetes talks back then. In the meantime, Kinvolk has worked on
 various projects mixing Kubernetes and BPF together. The latest such project is
-our own [Inspektor Gadget](https://github.com/kinvolk/inspektor-gadget), a
+our own [Inspektor Gadget](https://github.com/inspektor-gadget/inspektor-gadget), a
 collection of “gadgets” for debugging and inspecting Kubernetes applications.
 
 Today I would like to introduce Inspektor Gadget’s newest gadget that helps to
@@ -145,7 +145,7 @@ policies using usual Kubernetes label selectors instead of IP addresses.
 Of course, those automatically-produced network policies should not be used
 blindly: a developer should verify that the connections observed are
 legitimate. The Network Policy Advisor gadget has some limitations too (see
-[#39](https://github.com/kinvolk/inspektor-gadget/issues/39)), but it’s a lot
+[#39](https://github.com/inspektor-gadget/inspektor-gadget/issues/39)), but it’s a lot
 easier to review them and possibly make some small changes, rather than writing
 them from scratch with a frustrating trial and error development cycle. This
 saves precious development time and likely costs too.

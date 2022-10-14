@@ -212,11 +212,11 @@ need to SSH into the nodes, nor to work out the PIDs you need to attach the BPF
 program to.
 
 Following this investigation, we released a [new version of Inspektor
-Gadget](https://github.com/kinvolk/inspektor-gadget/releases/tag/v0.1.0-alpha.5)
+Gadget](https://github.com/inspektor-gadget/inspektor-gadget/releases/tag/v0.1.0-alpha.5)
 including both `profile` and `execsnoop`. We also show examples how to use
-[profile](https://github.com/kinvolk/inspektor-gadget/blob/master/Documentation/demo-profile.md)
+[profile](https://github.com/inspektor-gadget/inspektor-gadget/blob/master/Documentation/demo-profile.md)
 and
-[execsnoop](https://github.com/kinvolk/inspektor-gadget/blob/master/Documentation/demo-execsnoop.md).
+[execsnoop](https://github.com/inspektor-gadget/inspektor-gadget/blob/master/Documentation/demo-execsnoop.md).
 
 As René Wagner, technical director data platforms at Smartclip, summarized the
 engagement: “Through their knowledge of the latest Linux kernel technologies,

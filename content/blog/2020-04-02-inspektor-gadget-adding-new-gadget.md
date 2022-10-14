@@ -16,9 +16,9 @@ tracing tools with clear examples of how to use them. It’s useful to read the
 source of those tools to learn the coding patterns with BPF.
 
 A number of the gadgets in Inspektor Gadget such as
-[execsnoop](https://github.com/kinvolk/inspektor-gadget/blob/master/Documentation/demo-execsnoop.md)
+[execsnoop](https://github.com/inspektor-gadget/inspektor-gadget/blob/master/Documentation/demo-execsnoop.md)
 and
-[opensnoop](https://github.com/kinvolk/inspektor-gadget/blob/master/Documentation/demo-opensnoop.md)
+[opensnoop](https://github.com/inspektor-gadget/inspektor-gadget/blob/master/Documentation/demo-opensnoop.md)
 are directly based on BCC tools
 [execsnoop](https://github.com/iovisor/bcc/blob/master/tools/execsnoop_example.txt)
 and
@@ -38,7 +38,7 @@ new `--cgroupmap` option into BCC that allows for filtering by
 [cgroups](https://github.com/iovisor/bcc/blob/master/docs/filtering_by_cgroups.md).
 With this change, BCC tools can be integrated seamlessly into Inspektor Gadget.
 Indeed, bindsnoop was integrated with only [a few lines of
-code](https://github.com/kinvolk/inspektor-gadget/pull/35/files#diff-f616fa5f11da59a9ae7344d196bbf357R40-R43).
+code](https://github.com/inspektor-gadget/inspektor-gadget/pull/35/files#diff-f616fa5f11da59a9ae7344d196bbf357R40-R43).
 
 ## How it works
 
