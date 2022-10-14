@@ -186,7 +186,7 @@ where it can be found by kubectl. For instance, if you are running Linux
 on an amd64 machine:
 
 ```bash
-wget https://github.com/kinvolk/inspektor-gadget/releases/download/v0.5.0/kubectl-gadget-linux-amd64.tar.gz
+wget https://github.com/inspektor-gadget/inspektor-gadget/releases/download/v0.5.0/kubectl-gadget-linux-amd64.tar.gz
 tar xfz kubectl-gadget-linux-amd64.tar.gz
 sudo cp kubectl-gadget /usr/local/bin/kubectl-gadget
 ```
@@ -198,6 +198,6 @@ kubectl gadget deploy | kubectl apply -f -
 ```
 
 Please check the [release
-notes](https://github.com/kinvolk/inspektor-gadget/releases/tag/v0.5.0)
+notes](https://github.com/inspektor-gadget/inspektor-gadget/releases/tag/v0.5.0)
 of the v0.5.0 release to get a detailed list of the changes introduced
 in this version.

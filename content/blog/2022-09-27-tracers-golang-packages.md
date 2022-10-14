@@ -72,7 +72,7 @@ if err := rlimit.RemoveMemlock(); err != nil {
 We need to define a callback that will be invoked by the tracer each
 time an event is produced, i.e. a new process is created in this case.
 This callback receives as its argument an
-[event](https://pkg.go.dev/github.com/kinvolk/inspektor-gadget@v0.8.0/pkg/gadgets/trace/exec/types#Event).
+[event](https://pkg.go.dev/github.com/inspektor-gadget/inspektor-gadget@v0.8.0/pkg/gadgets/trace/exec/types#Event).
 In this example, we only print the name and the pid of the new process:
 
 ```golang
@@ -84,7 +84,7 @@ eventCallback := func(event types.Event) {
 
 Then, we have to create the tracer. In this case we're not interested in
 any filtering nor Kubernetes data enrichment, hence we pass an empty
-[Config](https://pkg.go.dev/github.com/kinvolk/inspektor-gadget@v0.8.0/pkg/gadgets/trace/exec/tracer#Config)
+[Config](https://pkg.go.dev/github.com/inspektor-gadget/inspektor-gadget@v0.8.0/pkg/gadgets/trace/exec/tracer#Config)
 struct and a nil enricher.
 
 ```golang
@@ -107,7 +107,7 @@ signal.Notify(exit, syscall.SIGINT, syscall.SIGTERM)
 
 And that's pretty much it. This is the full code of the example:
 
-{{< code_caption caption="[Go to source](https://github.com/kinvolk/inspektor-gadget/blob/main/examples/gadgets/basic/trace/exec/exec.go)" >}}
+{{< code_caption caption="[Go to source](https://github.com/inspektor-gadget/inspektor-gadget/blob/main/examples/gadgets/basic/trace/exec/exec.go)" >}}
 {{< highlight go >}}
 package main
 
@@ -119,8 +119,8 @@ import (
 
 	"github.com/cilium/ebpf/rlimit"
 
-	"github.com/kinvolk/inspektor-gadget/pkg/gadgets/trace/exec/tracer"
-	"github.com/kinvolk/inspektor-gadget/pkg/gadgets/trace/exec/types"
+	"github.com/inspektor-gadget/inspektor-gadget/pkg/gadgets/trace/exec/tracer"
+	"github.com/inspektor-gadget/inspektor-gadget/pkg/gadgets/trace/exec/types"
 )
 
 func main() {
@@ -206,7 +206,7 @@ callback := func(event containercollection.PubSubEvent) {
 
 Then, we have to define the options for the container collection. In
 this case we'll use
-[RuncFanotify](https://pkg.go.dev/github.com/kinvolk/inspektor-gadget@v0.8.0/pkg/runcfanotify):
+[RuncFanotify](https://pkg.go.dev/github.com/inspektor-gadget/inspektor-gadget@v0.8.0/pkg/runcfanotify):
 a mechanism that uses
 [fanotify](https://man7.org/linux/man-pages/man7/fanotify.7.html) to get
 notifications about containers started with runc and we'll use docker
@@ -249,7 +249,7 @@ defer containerCollection.Close()
 
 The full code is the following one:
 
-{{< code_caption caption="[Go to source](https://github.com/kinvolk/inspektor-gadget/blob/main/examples/container-collection/container-collection.go)" >}}
+{{< code_caption caption="[Go to source](https://github.com/inspektor-gadget/inspektor-gadget/blob/main/examples/container-collection/container-collection.go)" >}}
 {{< highlight go >}}
 package main
 
@@ -259,10 +259,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	containercollection "github.com/kinvolk/inspektor-gadget/pkg/container-collection"
-	containerutils "github.com/kinvolk/inspektor-gadget/pkg/container-utils"
-	"github.com/kinvolk/inspektor-gadget/pkg/container-utils/containerd"
-	"github.com/kinvolk/inspektor-gadget/pkg/container-utils/docker"
+	containercollection "github.com/inspektor-gadget/inspektor-gadget/pkg/container-collection"
+	containerutils "github.com/inspektor-gadget/inspektor-gadget/pkg/container-utils"
+	"github.com/inspektor-gadget/inspektor-gadget/pkg/container-utils/containerd"
+	"github.com/inspektor-gadget/inspektor-gadget/pkg/container-utils/docker"
 )
 
 func main() {
@@ -415,7 +415,7 @@ if err != nil {
 defer tracer.Stop()
 ```
 
-{{< code_caption caption="[Go to source](https://github.com/kinvolk/inspektor-gadget/blob/main/examples/gadgets/withfilter/trace/exec/exec.go)" >}}
+{{< code_caption caption="[Go to source](https://github.com/inspektor-gadget/inspektor-gadget/blob/main/examples/gadgets/withfilter/trace/exec/exec.go)" >}}
 {{< highlight go >}}
 package main
 
@@ -428,13 +428,13 @@ import (
 
 	"github.com/cilium/ebpf/rlimit"
 
-	containercollection "github.com/kinvolk/inspektor-gadget/pkg/container-collection"
-	containerutils "github.com/kinvolk/inspektor-gadget/pkg/container-utils"
-	"github.com/kinvolk/inspektor-gadget/pkg/container-utils/containerd"
-	"github.com/kinvolk/inspektor-gadget/pkg/container-utils/docker"
-	"github.com/kinvolk/inspektor-gadget/pkg/gadgets/trace/exec/tracer"
-	"github.com/kinvolk/inspektor-gadget/pkg/gadgets/trace/exec/types"
-	tracercollection "github.com/kinvolk/inspektor-gadget/pkg/tracer-collection"
+	containercollection "github.com/inspektor-gadget/inspektor-gadget/pkg/container-collection"
+	containerutils "github.com/inspektor-gadget/inspektor-gadget/pkg/container-utils"
+	"github.com/inspektor-gadget/inspektor-gadget/pkg/container-utils/containerd"
+	"github.com/inspektor-gadget/inspektor-gadget/pkg/container-utils/docker"
+	"github.com/inspektor-gadget/inspektor-gadget/pkg/gadgets/trace/exec/tracer"
+	"github.com/inspektor-gadget/inspektor-gadget/pkg/gadgets/trace/exec/types"
+	tracercollection "github.com/inspektor-gadget/inspektor-gadget/pkg/tracer-collection"
 )
 
 const traceName = "trace_exec"
@@ -588,7 +588,7 @@ eventCallback := func(event types.Event) {
 
 And that's it. This is the full code of the example:
 
-{{< code_caption caption="[Go to source](https://github.com/kinvolk/inspektor-gadget/blob/main/examples/gadgets/formatter/trace/exec/exec.go)" >}}
+{{< code_caption caption="[Go to source](https://github.com/inspektor-gadget/inspektor-gadget/blob/main/examples/gadgets/formatter/trace/exec/exec.go)" >}}
 {{< highlight go >}}
 package main
 
@@ -601,14 +601,14 @@ import (
 
 	"github.com/cilium/ebpf/rlimit"
 
-	"github.com/kinvolk/inspektor-gadget/pkg/columns/formatter/textcolumns"
-	containercollection "github.com/kinvolk/inspektor-gadget/pkg/container-collection"
-	containerutils "github.com/kinvolk/inspektor-gadget/pkg/container-utils"
-	"github.com/kinvolk/inspektor-gadget/pkg/container-utils/containerd"
-	"github.com/kinvolk/inspektor-gadget/pkg/container-utils/docker"
-	"github.com/kinvolk/inspektor-gadget/pkg/gadgets/trace/exec/tracer"
-	"github.com/kinvolk/inspektor-gadget/pkg/gadgets/trace/exec/types"
-	tracercollection "github.com/kinvolk/inspektor-gadget/pkg/tracer-collection"
+	"github.com/inspektor-gadget/inspektor-gadget/pkg/columns/formatter/textcolumns"
+	containercollection "github.com/inspektor-gadget/inspektor-gadget/pkg/container-collection"
+	containerutils "github.com/inspektor-gadget/inspektor-gadget/pkg/container-utils"
+	"github.com/inspektor-gadget/inspektor-gadget/pkg/container-utils/containerd"
+	"github.com/inspektor-gadget/inspektor-gadget/pkg/container-utils/docker"
+	"github.com/inspektor-gadget/inspektor-gadget/pkg/gadgets/trace/exec/tracer"
+	"github.com/inspektor-gadget/inspektor-gadget/pkg/gadgets/trace/exec/types"
+	tracercollection "github.com/inspektor-gadget/inspektor-gadget/pkg/tracer-collection"
 )
 
 const traceName = "trace_exec"
@@ -758,7 +758,7 @@ applications might be difficult or not suitable:
 The packages provided by Inspektor Gadget allow tracing different events
 on the host, to filter by container and to pretty print them. Check out
 the
-[examples](https://github.com/kinvolk/inspektor-gadget/tree/main/examples)
+[examples](https://github.com/inspektor-gadget/inspektor-gadget/tree/main/examples)
 folder where existing and future examples are published. If you think
 there is something we're missing or something that is not working,
 please reach out. We're always happy to help.

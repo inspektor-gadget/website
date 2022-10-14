@@ -64,14 +64,14 @@ We followed these steps to convert the tools.
 We take the code from the BCC libbpf-tools and adapt it to our needs.
 Specifically, we add the capability to filter by containers, using their
 mount namespace inode id, as done
-[here](https://github.com/kinvolk/inspektor-gadget/commit/2fe54795311647b89d3e17a69f885f051706b392)
+[here](https://github.com/inspektor-gadget/inspektor-gadget/commit/2fe54795311647b89d3e17a69f885f051706b392)
 for the trace tcp gadget and
-[here](https://github.com/kinvolk/inspektor-gadget/commit/5c1ee18715b60d5182e217e5d3ef61be8921f8dd)
+[here](https://github.com/inspektor-gadget/inspektor-gadget/commit/5c1ee18715b60d5182e217e5d3ef61be8921f8dd)
 for top tcp. In some cases, we had to disable some features that weren't
 supported by the cilium/ebpf library at the time we did the porting. For
 instance, when we ported the trace bind gadget, there was no support for
 `BPF_CORE_READ_BITFIELD_PROBED`, so we had to [comment
-out](https://github.com/kinvolk/inspektor-gadget/commit/e07760daa99bd3517315cfb56c23ae214dab8d66)
+out](https://github.com/inspektor-gadget/inspektor-gadget/commit/e07760daa99bd3517315cfb56c23ae214dab8d66)
 this code until support for that was
 [implemented](https://github.com/cilium/ebpf/pull/573) in the library.
 
@@ -196,16 +196,16 @@ had to implement some workarounds:
 - [Reference kconfig variables in bpf using
   `__kconfig`](https://github.com/cilium/ebpf/issues/698): We implemented
   a
-  [workaround](https://github.com/kinvolk/inspektor-gadget/blob/v0.7.1/pkg/gadgets/profile/block-io/tracer/bpf/biolatency.bpf.c#L82-L86)
+  [workaround](https://github.com/inspektor-gadget/inspektor-gadget/blob/v0.7.1/pkg/gadgets/profile/block-io/tracer/bpf/biolatency.bpf.c#L82-L86)
   for the lack of the `LINUX_KERNEL_VERSION` variable by compiling two
   different versions of the program and choosing which one to load at
   runtime based on the kernel version.
 - [Reference kernel symbols using
   `__ksym`](https://github.com/cilium/ebpf/issues/761): In this case we
   had to declare a ksym as global variable in the [eBPF
-  program](https://github.com/kinvolk/inspektor-gadget/blob/v0.7.1/pkg/gadgets/top/ebpf/piditer/bpf/pid_iter.bpf.c#L9)
+  program](https://github.com/inspektor-gadget/inspektor-gadget/blob/v0.7.1/pkg/gadgets/top/ebpf/piditer/bpf/pid_iter.bpf.c#L9)
   and implement the
-  [logic](https://github.com/kinvolk/inspektor-gadget/blob/v0.7.1/pkg/gadgets/top/ebpf/piditer/iter.go#L59-L99)
+  [logic](https://github.com/inspektor-gadget/inspektor-gadget/blob/v0.7.1/pkg/gadgets/top/ebpf/piditer/iter.go#L59-L99)
   to get this value parsing /proc/kallsysms.
 
 # Similar Effort

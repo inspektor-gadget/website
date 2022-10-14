@@ -7,10 +7,10 @@ params:
   favicon: brand-icon.svg
   description: Project website for Inspektor Gadget
   docs:
-    github_edit_url: https://github.com/kinvolk/inspektor-gadget/edit/main/docs/
-    issues_url: https://github.com/kinvolk/inspektor-gadget/issues/new?labels=kind/docs
+    github_edit_url: https://github.com/inspektor-gadget/inspektor-gadget/edit/main/docs/
+    issues_url: https://github.com/inspektor-gadget/inspektor-gadget/issues/new?labels=kind/docs
     external_docs:
-    - repo: https://github.com/kinvolk/inspektor-gadget.git
+    - repo: https://github.com/inspektor-gadget/inspektor-gadget.git
       name: "latest"
       branch: "main"
       dir: "docs"
@@ -19,7 +19,7 @@ params:
     url: 'https://twitter.com/nspektor_gadget'
     image: 'twitter-icon'
   - title: Github
-    url: 'https://github.com/kinvolk/inspektor-gadget'
+    url: 'https://github.com/inspektor-gadget/inspektor-gadget'
     image: 'github-icon'
 menu:
   main:
@@ -32,7 +32,7 @@ menu:
       identifier: gadgets
       weight: -200
     - name: Github
-      url: https://github.com/kinvolk/inspektor-gadget
+      url: https://github.com/inspektor-gadget/inspektor-gadget
       identifier: github
       weight: -100
       pre: github
