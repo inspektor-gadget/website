@@ -11,47 +11,51 @@ params:
     issues_url: https://github.com/inspektor-gadget/inspektor-gadget/issues/new?labels=kind/docs
     external_docs:
     - repo: https://github.com/inspektor-gadget/inspektor-gadget.git
-      name: "v0.16.0"
-      branch: "v0.16.0"
-      dir: "docs"
+      name: v0.17.0
+      branch: v0.17.0
+      dir: docs
     - repo: https://github.com/inspektor-gadget/inspektor-gadget.git
-      name: "latest"
-      branch: "main"
-      dir: "docs"
+      name: v0.16.0
+      branch: v0.16.0
+      dir: docs
+    - repo: https://github.com/inspektor-gadget/inspektor-gadget.git
+      name: latest
+      branch: main
+      dir: docs
   social:
   - title: Twitter
-    url: 'https://twitter.com/nspektor_gadget'
-    image: 'twitter-icon'
+    url: https://twitter.com/nspektor_gadget
+    image: twitter-icon
   - title: Github
-    url: 'https://github.com/inspektor-gadget/inspektor-gadget'
-    image: 'github-icon'
+    url: https://github.com/inspektor-gadget/inspektor-gadget
+    image: github-icon
 menu:
   main:
-    - name: Blog
-      url: /blog
-      identifier: blog
-      weight: -500
-    - name: Gadgets
-      url: /#gadgets
-      identifier: gadgets
-      weight: -200
-    - name: Github
-      url: https://github.com/inspektor-gadget/inspektor-gadget
-      identifier: github
-      weight: -100
-      pre: github
-    - name: Docs
-      url: /docs
-      identifier: docs
-      weight: -100
+  - name: Blog
+    url: /blog
+    identifier: blog
+    weight: -500
+  - name: Gadgets
+    url: /#gadgets
+    identifier: gadgets
+    weight: -200
+  - name: Github
+    url: https://github.com/inspektor-gadget/inspektor-gadget
+    identifier: github
+    weight: -100
+    pre: github
+  - name: Docs
+    url: /docs
+    identifier: docs
+    weight: -100
 markup:
   highlight:
     anchorLineNos: false
     codeFences: true
     guessSyntax: false
-    hl_Lines: ""
+    hl_Lines: ''
     hl_inline: false
-    lineAnchors: ""
+    lineAnchors: ''
     lineNoStart: 1
     lineNos: false
     lineNumbersInTable: true

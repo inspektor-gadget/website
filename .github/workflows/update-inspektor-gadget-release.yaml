@@ -1,0 +1,52 @@
+name: "update-inspektor-gadget-version"
+on:
+  workflow_dispatch:
+  schedule:
+    # Each Tuesday, as Inspektor Gadget release are done on Monday, at 4 UTC.
+    - cron: "0 4 * * 2"
+permissions:
+  contents: read
+
+jobs:
+  bump-inspektor-gadget-version:
+    runs-on: ubuntu-latest
+    permissions:
+      # This is needed by below action used to open PR:
+      # https://github.com/peter-evans/create-pull-request#action-inputs
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+      - name: Bump inspektor-gadget version
+        id: bump_inspektor_gadget
+        run: |
+          inspektor_gadget_version=$(curl --silent https://api.github.com/repos/inspektor-gadget/inspektor-gadget/releases/latest | jq .tag_name | tr -d '"')
+
+          if [ -z "$(grep $inspektor_gadget_version config.yaml)"]; then
+            python3 tools/add-version.py config.yaml $inspektor_gadget_version
+          fi
+
+          echo "version=${inspektor_gadget_version}" >> $GITHUB_OUTPUT
+
+          # The following is to support multiline with GITHUB_OUTPUT, see:
+          # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#multiline-strings
+          echo "changes<<EOF" >> $GITHUB_OUTPUT
+          echo "$(git status --porcelain)" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      - name: Create PR
+        if: ${{ steps.bump_inspektor_gadget.outputs.changes != '' }}
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'docs: Add documentation for ${{ steps.bump_inspektor_gadget.outputs.version }}'
+          branch: auto_bump_inspektor_gadget_version
+          base: master
+          delete-branch: true
+          title: 'docs: Add documentation for ${{ steps.bump_inspektor_gadget.outputs.version }}'
+          body: |
+            Hi.
+
+            We released a new version of Inspektor Gadget, so the documentation website needs to be updated.
+
+            Best regards.
+            P.S.: This PR was automatically opened by a CI cron job, in case of problem an human will deal with it.
