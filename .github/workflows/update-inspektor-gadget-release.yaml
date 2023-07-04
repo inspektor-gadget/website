@@ -40,7 +40,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: 'docs: Add documentation for ${{ steps.bump_inspektor_gadget.outputs.version }}'
           branch: auto_bump_inspektor_gadget_version
-          base: master
+          base: main
           delete-branch: true
           title: 'docs: Add documentation for ${{ steps.bump_inspektor_gadget.outputs.version }}'
           body: |
