@@ -2,7 +2,7 @@ baseURL: /
 languageCode: en-us
 title: Inspektor Gadget
 assetsDir: assets
-copyright: Microsoft Inc. All Rights Reserved.
+copyright: The Inspektor Gadget Contributors
 params:
   favicon: brand-icon.svg
   description: Project website for Inspektor Gadget
