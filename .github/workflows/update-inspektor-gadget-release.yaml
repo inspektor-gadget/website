@@ -2,8 +2,8 @@ name: "update-inspektor-gadget-version"
 on:
   workflow_dispatch:
   schedule:
-    # Each Tuesday, as Inspektor Gadget release are done on Monday, at 4 UTC.
-    - cron: "0 4 * * 2"
+    # Daily at 4 UTC. Usually Inspektor Gadget is released on Monday, but there are exceptions, like bug fix releases.
+    - cron: "0 4 * * *"
 permissions:
   contents: read
 
