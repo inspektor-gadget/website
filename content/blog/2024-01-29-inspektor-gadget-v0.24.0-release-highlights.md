@@ -40,7 +40,7 @@ This summary includes:
 
   
 
-[Support of fentry, fexit, raw\_tracepoint](#support-of-fentry-fexit-raw\_tracepoint)
+[Support of fentry, fexit, raw\_tracepoint](#support-of-fentry-fexit-raw-tracepoint)
 
   
 
@@ -86,7 +86,7 @@ Inspektor Gadget now includes logic to detect which kind of eBPF map is being us
 
   
 
-# Support of fentry, fexit, raw\_tracepoint
+# Support of fentry, fexit, raw tracepoint
 
   
 
