@@ -1,19 +1,18 @@
 +++
 authors = ["maya-singh"]
 date = "2024-01-29T10:00:00+02:00"
-description = "Inspektor Gadget Release v0.24.0"
+description = "Inspektor Gadget Release Highlights v0.24.0"
 draft = false
 tags = ["fentry", "fexit", "eBPF map", "kubernetes", "Inspektor Gadget"]
-title = "Inspektor Gadget Release v0.24.0"
+title = "Inspektor Gadget Release Highlights v0.24.0"
 postImage = "v0.24.0 release post image-unsplash.jpg"
 +++
 
 
-__Inspektor Gadget Release v0\.24\.0__
-
-  
 
 We’re excited to share the highlights of the most recent [Inspektor Gadget release](https://github.com/inspektor-gadget/inspektor-gadget/releases/tag/v0.24.0)\.
+
+  
 
   
 
@@ -21,23 +20,34 @@ This summary includes:
 
   
 
-[Ig image remove](#_Toc157156434)
+  
+
+[Ig image remove](#ig-image-remove)
 
   
 
-[Enums to strings](#_Toc157156435)
+  
+
+[Enums to strings](#enums-to-strings)
 
   
 
-[eBPF map logic](#_Toc157156436)
+  
+
+[eBPF map logic](#ebpf-map-logic)
 
   
 
-[Support of fentry, fexit, raw\_tracepoint](#_Toc157156437)
+  
+
+[Support of fentry, fexit, raw\_tracepoint](#support-of-fentry-fexit-raw\_tracepoint)
 
   
 
-# <a id="_Toc157156434"></a>Ig image remove
+
+# Ig image remove
+
+  
 
   
 
@@ -45,19 +55,28 @@ The *ig image remove* command was added which enables users to remove image base
 
   
 
-# <a id="_Toc157156435"></a>Enums to strings
+  
+
+# Enums to strings
+
+  
 
   
 
 As a part of converting built\-in gadgets to image\-based gadgets, we can now print enums as strings\. This makes interpreting the data from the gadget output much easier and it is no longer required for users to convert raw numbers to their string equivalents\. Check out the example below:
 
   
+
 {{< figure src="/media/enumstostring.png" class="img-fluid" alt="Image showing the enums to string as described above.">}}
 
+  
+  
 
   
 
-# <a id="_Toc157156436"></a>eBPF map logic
+# eBPF map logic
+
+  
 
   
 
@@ -65,7 +84,11 @@ Inspektor Gadget now includes logic to detect which kind of eBPF map is being us
 
   
 
-# <a id="_Toc157156437"></a>Support of fentry, fexit, raw\_tracepoint
+  
+
+# Support of fentry, fexit, raw\_tracepoint
+
+  
 
   
 
@@ -73,7 +96,11 @@ In Linux there are many types of eBPF programs, we now support fentry, fexit and
 
   
 
+  
+
 The full release notes can be found here: [ Release v0\.24\.0 · inspektor\-gadget/inspektor\-gadget · GitHub](https://github.com/inspektor-gadget/inspektor-gadget/releases/tag/v0.24.0)
+
+  
 
   
 
