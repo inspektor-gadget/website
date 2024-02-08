@@ -22,7 +22,7 @@ We're back with the highlights of another [Inspektor Gadget Release](https://git
 
 [Reducing Host Volume Mounts](#reducing-host-volume-mounts)
 
-[Converting Legacy Gadgets to Image-based Gadgets](#converting-legacy-gadgets-to-image-based-gadgets)
+[Converting Built-in Gadgets to Image-based Gadgets](#converting-built-in-gadgets-to-image-based-gadgets)
 
 [New Contributors](#new-contributors)
 
@@ -49,7 +49,7 @@ After:
 
 In the spirit of Principle of Least Privilege, we reduced the quantity of folders from the host that we mount on the Inspektor Gadget pods. Now Inspektor Gadget only mounts what is really needed, and most of the volumes are mounted as read-only. These mounts are needed because Inspektor Gadget needs some visibility into the host root file system to be able to trace processes.
 
-# Converting Legacy Gadgets to Image-based Gadgets
+# Converting Built-in Gadgets to Image-based Gadgets
 
 We continue our work to convert built-in gadgets to image-based gadgets. In this release we converted the trace oomkill and trace sni built-in gadgets into image-based gadgets.
 
