@@ -59,4 +59,4 @@ Shout out to first-time contributors @ghinks and @prwarpranav83!
 
 The full release notes can be found here: [Release v0.25.0 · inspektor-gadget/inspektor-gadget (github.com)](https://github.com/inspektor-gadget/inspektor-gadget/releases/tag/v0.25.0)
 
-As always, we look forward to hearing your feedback and connecting with you on Slack! #inspektor-gadget in the Kubernetes workspace.
+As always, we look forward to hearing your feedback and connecting with you on Slack! [#inspektor-gadget](https://kubernetes.slack.com/messages/inspektor-gadget/) in the Kubernetes workspace.
