@@ -51,7 +51,7 @@ In the spirit of Principle of Least Privilege, we reduced the quantity of folder
 
 # Converting Legacy Gadgets to Image-based Gadgets
 
-We continue our work to convert built-in gadgets to image-based gadgets. In this release we converted the trace oomkill and trace sni legacy gadgets into image-based gadgets.
+We continue our work to convert built-in gadgets to image-based gadgets. In this release we converted the trace oomkill and trace sni built-in gadgets into image-based gadgets.
 
 # New Contributors
 
