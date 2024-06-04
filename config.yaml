@@ -11,16 +11,16 @@ params:
     issues_url: https://github.com/inspektor-gadget/inspektor-gadget/issues/new?labels=kind/docs
     external_docs:
     - repo: https://github.com/inspektor-gadget/inspektor-gadget.git
+      name: v0.29.0
+      branch: v0.29.0
+      dir: docs
+    - repo: https://github.com/inspektor-gadget/inspektor-gadget.git
       name: v0.28.1
       branch: v0.28.1
       dir: docs
     - repo: https://github.com/inspektor-gadget/inspektor-gadget.git
       name: v0.28.0
       branch: v0.28.0
-      dir: docs
-    - repo: https://github.com/inspektor-gadget/inspektor-gadget.git
-      name: v0.27.0
-      branch: v0.27.0
       dir: docs
     - repo: https://github.com/inspektor-gadget/inspektor-gadget.git
       name: latest
