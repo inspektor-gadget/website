@@ -1,11 +1,11 @@
 +++
 authors = ["Tianyi Liu"]
-date = "2024-05-31T00:00:00+08:00"
+date = "2024-06-12T00:00:00+08:00"
 description = "Supporting Uprobe based gadgets - LFX Mentorship Report"
 draft = false
 tags = ["LFX Mentorship", "Uprobe", "USDT", "LSM", "Stack Unwinding", "Inspektor Gadget", "gadget"]
 title = "Supporting Uprobe based gadgets - LFX Mentorship Report"
-postImage = "2024-05-31-cncf-mentoring-logo.png"
+postImage = "2024-05-31-cncf-mentoring-logo.jpg"
 +++
 
 My name is Tianyi Liu. As a mentee in the [LFX Mentorship program](https://mentorship.lfx.linuxfoundation.org/project/f016029e-f15f-4ee9-aaf5-5719bee72b59) for the 2024 Spring term, I contributed to the Inspektor Gadget project under the mentoring of [Alban Crequy](https://github.com/alban) and [Mauricio Vásquez Bernal](https://github.com/mauriciovasquezbernal). 

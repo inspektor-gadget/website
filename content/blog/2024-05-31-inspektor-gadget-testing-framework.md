@@ -1,11 +1,11 @@
 +++
 authors = ["Pranav Pawar"]
-date = "2024-05-30T10:00:00+02:00"
+date = "2024-06-12T10:00:00+02:00"
 description = "Introducing the New Testing Framework for Image-based Gadgets"
 draft = false
 tags = ["LFXMentorship", "InspektorGadget", "TestingFramework", "eBPF", "go", "golang", "gadget", "tests"]
 title = "Introducing the New Testing Framework for Image-based Gadgets"
-postImage = "2024-05-31-lfx-mentorship-ig-logo.png"
+postImage = "2024-05-31-cncf-mentoring-logo.jpg"
 +++
 
 
@@ -54,7 +54,7 @@ If `IG_PATH` includes `kubectl-gadget` and `IG_RUNTIME` is set to `kubernetes`, 
 
 ## Writing Tests for Your Gadget
 
-Let's dive into how you can create tests for your gadgets. We will illustrate the process by using an example test file, [trace_open_test.go](https://github.com/pawarpranav83/inspektor-gadget/blob/testing-fw/gadgets/trace_open/test/trace_open_test.go) (TODO: Change link). The corresponding eBPF program for this test can be found [here](https://github.com/inspektor-gadget/inspektor-gadget/blob/v0.28.1/gadgets/trace_open/program.bpf.c). \
+Let's dive into how you can create tests for your gadgets. We will illustrate the process by using an example test file, [trace_open_test.go](https://github.com/inspektor-gadget/inspektor-gadget/blob/main/gadgets/trace_open/test/trace_open_test.go). The corresponding eBPF program for this test can be found [here](https://github.com/inspektor-gadget/inspektor-gadget/blob/v0.29.0/gadgets/trace_open/program.bpf.c). \
  \
 The `trace_open_test.go` currently contains a single test that can be used for testing with both containers running locally and containers running in a Kubernetes cluster.
 
