@@ -17,7 +17,7 @@ Inspektor Gadget can be used on Kubernetes (k8s) clusters in several ways:
 
 In this blog post, we will focus on using Inspektor Gadget as a one-off debugging command with [`kubectl debug`](https://kubernetes.io/docs/reference/kubectl/generated/kubectl_debug/).
 This command permits debugging specific k8s nodes in an interactive way.
-It does not come with debugging tools, instead it relies on specifying any container image which will be deployed as debugging container for the command lifetime.
+It does not come with debugging tools, instead it relies on specifying any container image which will be deployed as a debugging container for the command lifetime.
 As `ig` is also available as a [container image](https://github.com/inspektor-gadget/inspektor-gadget/pkgs/container/ig), we can leverage this to run it through `kubectl debug`:
 
 ```bash
