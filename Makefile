@@ -1,15 +1,14 @@
-all: getdeps docs
-	npm run build
+.PHONY: all
+all: getdeps build	
 
+.PHONY: getdeps
 getdeps:
-	pip3 install --upgrade pyyaml
-	npm i
+	yarn
 
-.PHONY: docs
-docs:
-	@echo "Fetching external docs…"
-	@rm -rf docs versioned_docs versioned_sidebars; rm -f versions.json; mkdir versioned_docs versioned_sidebars;
-	python3 ./tools/docs-fetcher.py ./config.yaml
+.PHONY: build
+build:
+	yarn build
 
+.PHONY: run
 run:
-	npm run start
+	npm run serve
