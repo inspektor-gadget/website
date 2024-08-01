@@ -9,7 +9,7 @@ const latestVersionName = versions[0];
 const config: Config = {
   title: "Inspektor Gadget",
   tagline:
-    "A collection of eBPF-based gadgets to debug and inspect Kubernetes apps and resources",
+    "Inspektor Gadget is a set of tools and framework for data collection and system inspection on Kubernetes clusters and Linux hosts using eBPF",
   favicon: "media/brand-icon.svg",
 
   // Set the production url of your site here
