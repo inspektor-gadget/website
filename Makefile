@@ -1,17 +1,5 @@
-all: getdeps docs
-	hugo --config ./themes/kinvolk-generic/base-config.yaml,./config.yaml
-
-getdeps:
-	pip3 install --upgrade pyyaml
-
 .PHONY: docs
 docs:
 	@echo "Fetching external docs…"
-	@find ./content/docs -maxdepth 1 -type l -delete
+	@rm -rf docs versioned_docs versioned_sidebars; rm -f versions.json; mkdir versioned_docs versioned_sidebars;
 	python3 ./tools/docs-fetcher.py ./config.yaml
-
-run:
-	hugo server --buildFuture --watch --disableFastRender --config ./themes/kinvolk-generic/base-config.yaml,./config.yaml\,./tmp_modules.yaml
-
-update-theme:
-	git subtree pull  --prefix themes/kinvolk-generic/ https://github.com/kinvolk/websites-theme.git main --squash
