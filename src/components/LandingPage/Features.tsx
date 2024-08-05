@@ -1,37 +1,37 @@
 import style from "./Features.module.css";
-import Expandable from "./expandable.svg";
-import Maps from "./maps.svg";
-import Flexible from "./flexible.svg";
+import Gadgets from "./gadget.svg";
+import KubernetesAndContainerAware from "./kubernetes.svg";
+import BatteriesIncluded from "./battery.svg";
 import clsx from "clsx";
 
 export function Features() {
   return (
     <section className={style.section}>
       <div className={style.container}>
-        <h2>The Inspektor has arrived</h2>
+        <h2>Powerful Observability tooling</h2>
         <p className={style.description}>
-          All the tools you need to investigate your cluster’s toughest issues
+          Leverage the power of eBPF to collect systems insights. Leverege Inspektor Gadget to make doing so fast and efficient.
         </p>
         <div className={clsx(style.features)}>
           <div className={style.feature}>
-            <Expandable />
-            <h3>Expandable</h3>
+            <Gadgets />
+            <h3>Gadgets</h3>
             <p className={style.featureDescription}>
-              Expanding BPF usage from single nodes to across the entire cluster
+              Gadgets encapsulate eBPF programs in deployable units for powerful and performant systems inspection
             </p>
           </div>
           <div className={style.feature}>
-            <Maps />
-            <h3>Maps</h3>
+            <KubernetesAndContainerAware />
+            <h3>K8s & Container Aware</h3>
             <p className={style.featureDescription}>
-              Maps low-level Linux resources to high-level Kubernetes concepts
+              Automatically map low-level systems information to high-level Kubernetes and container resources
             </p>
           </div>
           <div className={style.feature}>
-            <Flexible />
-            <h3>Flexible</h3>
+            <BatteriesIncluded />
+            <h3>Batteries Included</h3>
             <p className={style.featureDescription}>
-              Use stand-alone or integrate into your own tooling
+              An observabilty framework with everything you need to collect, filter, format and export valuable systems data
             </p>
           </div>
         </div>
