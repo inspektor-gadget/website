@@ -46,7 +46,9 @@ and provide them to the application using a callback.
 ![Picture showing the different components. On the top we have the
 application that passes the configuration to the tracer. Then the tracer
 returns events. The tracer uses eBPF programs and maps to get
-information from the kernel.](/media/2022-09-27-architecture.svg "Architecture Diagram")
+information from the kernel.](/media/2022-09-27-architecture.svg)
+
+"Architecture Diagram"
 
 In the next sections we show how to configure and use those tracers. For
 each example we provide the full code, so readers can compile and try it
