@@ -24,6 +24,48 @@ const config: Config = {
   plugins: [
     "docusaurus-lunr-search",
     [
+      "@docusaurus/plugin-client-redirects",
+      {
+        redirects: [
+          {
+            from: "/docs",
+            to: "/docs/latest"
+          },
+          {
+            from: "/docs/latest/guides/run",
+            to: "/docs/latest/reference/run"
+          },
+          {
+            from: "/docs/latest/core-concepts/architecture",
+            to: "/docs/latest/reference/architecture"
+          },
+          {
+            from: "/docs/latest/getting-started/quick-start",
+            to: "/docs/latest/quick-start"
+          },
+          {
+            from: "/docs/latest/ig",
+            to: "/docs/latest/reference/ig"
+          },
+          {
+            from: "/docs/latest/getting-started/install-kubernetes",
+            to: "/docs/latest/reference/install-kubernetes"
+          },
+          {
+            from: "/docs/latest/getting-started/install-linux",
+            to: "/docs/latest/reference/install-linux"
+          },
+        ],
+        createRedirects(toPath) {
+          if (toPath.includes("/docs/latest/gadgets/builtin")) {
+            // Redirect to the new location of the builtin gadgets
+            return toPath.replace("/docs/latest/gadgets/builtin", "/docs/latest/builtin-gadgets");
+          }
+          return undefined;
+        }
+      },
+    ],
+    [
       "@docusaurus/plugin-ideal-image",
       {
         quality: 70,
