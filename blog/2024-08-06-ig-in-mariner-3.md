@@ -6,6 +6,7 @@ tags: ["eBPF", "ig", "inspektor gadget", "Mariner", "AzureLinux"]
 title: "Inspektor Gadget is available in AzureLinux 3"
 slug: /2024/08/inspektor-gadget-is-available-in-azure-linux-3
 image: /media/ig-in-mariner-3.jpg
+date: 2024-08-06T10:00
 ---
 
 Last week, the team behind Azure Linux officially released its [version 3](https://github.com/microsoft/azurelinux/releases/tag/3.0.20240727-3.0).
