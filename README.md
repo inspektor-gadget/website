@@ -2,13 +2,15 @@
 
 ## Requirements
 
-Node, npm, python3
+Node (version >= 18.0), npm and python3.
 
 ## Documentation preview
 
 To preview your edits to docs in the inspektor-gadget repo run
 
 ```bash
+make docs
+npm install docusaurus
 npm run dev
 ```
 
@@ -29,8 +31,8 @@ Some frontmatter properties:
 
 [All possible frontmatter propeties](https://docusaurus.io/docs/api/plugins/@docusaurus/plugin-content-blog#markdown-front-matter)
 
-**IMPORTANT**  
-Please remember to include `<!--truncate-->` after the first paragraph.  
+**IMPORTANT**
+Please remember to include `<!--truncate-->` after the first paragraph.
 This will mark what will be shown as the preview in the "Latest" section in the blog.
 
 [Markdown features docs](https://docusaurus.io/docs/markdown-features)
