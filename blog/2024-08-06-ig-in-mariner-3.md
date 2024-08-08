@@ -12,6 +12,7 @@ Last week, the team behind Azure Linux officially released its [version 3](https
 Starting with this version, Inspektor Gadget is available in the official repository and can be installed by simply calling `tdnf`.
 Let's now deploy an Azure Linux 3 VM to install and use Inspektor Gadget, specifically the `trace exec` gadget to monitor the corresponding syscalls:
 
+<!-- truncate -->
 ```bash
 you@home$ resource_group='azure-linux-3'
 you@home$ vm='azure-linux-3-vm'
