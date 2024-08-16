@@ -12,6 +12,7 @@ on:
 
 jobs:
   build_and_deploy_job:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     steps:
@@ -34,6 +35,7 @@ jobs:
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
           app_location: "/" # App source code path
           output_location: "build" # Built app content directory - optional
+          production_branch: "main" # So it knows that other branches/PRs should use preview environments that are removed on closure
           ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
