@@ -21,6 +21,8 @@ const config: Config = {
   onBrokenLinks: "warn",
   onBrokenMarkdownLinks: "warn",
 
+  themes: ['@docusaurus/theme-mermaid'],
+
   plugins: [
     "docusaurus-lunr-search",
     [
@@ -99,6 +101,7 @@ const config: Config = {
 
   markdown: {
     format: "detect",
+    mermaid: true,
   },
 
   presets: [
