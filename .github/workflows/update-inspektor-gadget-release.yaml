@@ -16,7 +16,7 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+      - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5
       - name: Bump inspektor-gadget version
         id: bump_inspektor_gadget
         run: |
