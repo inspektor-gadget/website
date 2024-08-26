@@ -11,10 +11,34 @@ on:
       - main
 
 jobs:
-  build_and_deploy_job:
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+  check-secrets:
+    name: Check repo secrets
     runs-on: ubuntu-latest
+    outputs:
+      azure: ${{ steps.set_output.outputs.azure }}
+    steps:
+      # Secrets cannot be used as if condition, use job output as workaround.
+      # https://github.com/actions/runner/issues/520
+      - id: set_output
+        env:
+          AZURE_STATIC_WEB_APPS_API_TOKEN_POLITE_MUSHROOM_00D947803: '${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_POLITE_MUSHROOM_00D947803 }}'
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+        run: |
+          if [[ "${AZURE_STATIC_WEB_APPS_API_TOKEN_POLITE_MUSHROOM_00D947803}" != "" && \
+                "${GITHUB_TOKEN}" != "" ]]; \
+          then
+            echo "Secrets to deploy to azure were configured in the repo"
+            echo "azure=true" >> $GITHUB_OUTPUT
+          else
+            echo "Secrets to deploy to azure were not configured in the repo"
+            echo "azure=false" >> $GITHUB_OUTPUT
+          fi
+
+  build_and_deploy_job:
     name: Build and Deploy Job
+    needs: check-secrets
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed') && needs.check-secrets.outputs.azure == 'true'
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         with:
