@@ -16,7 +16,7 @@
     "link-docs": "./tools/link-docs.sh"
   },
   "dependencies": {
-    "@docusaurus/core": "^3.4.0",
+    "@docusaurus/core": "^3.5.2",
     "@docusaurus/plugin-client-redirects": "^3.4.0",
     "@docusaurus/plugin-ideal-image": "^3.4.0",
     "@docusaurus/preset-classic": "^3.4.0",
