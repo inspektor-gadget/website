@@ -4,6 +4,8 @@ import type * as Preset from "@docusaurus/preset-classic";
 import { githubA11yLight } from "./src/prismColorTheme";
 import versions from "./versions.json";
 
+import versionReplacer from './src/remark/version-replacer';
+
 const latestVersionName = versions[0];
 
 const config: Config = {
@@ -109,6 +111,7 @@ const config: Config = {
       "classic",
       {
         docs: {
+          remarkPlugins: [versionReplacer],
           lastVersion: "current",
           versions: {
             current: {
