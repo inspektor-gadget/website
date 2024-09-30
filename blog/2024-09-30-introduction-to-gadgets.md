@@ -472,8 +472,7 @@ provide.
 
 struct event {
 	gadget_mntns_id mntns_id;
-
-__u32 pid;
+	__u32 pid;
 	char comm[TASK_COMM_LEN];
 	char filename[NAME_MAX];
 };
@@ -506,8 +505,8 @@ called each time the openat() syscall is executed.
 
 First, this program checks if the current mount namespace inode id has to be
 filtered out (this is used to implement filtering by containers), then it
-collects the information to fill the event (only pid for now), and then calls
-gadget_submit_buf() helper to send the event to user space.
+collects the information to fill the event, and then calls `gadget_submit_buf()`
+helper to send the event to user space.
 
 ```c
 SEC("tracepoint/syscalls/sys_enter_openat")
@@ -527,7 +526,8 @@ int enter_openat(struct syscall_trace_enter *ctx)
 	event->mntns_id = mntns_id;
 	event->pid = bpf_get_current_pid_tgid() >> 32;
 	bpf_get_current_comm(event->comm, sizeof(event->comm));
-	bpf_probe_read_user_str(event->filename, sizeof(event->filename), (const char *)ctx->args[1]);
+	bpf_probe_read_user_str(event->filename, sizeof(event->filename),
+				(const char *)ctx->args[1]);
 
 	gadget_submit_buf(ctx, &events, event, sizeof(*event));
 
@@ -567,19 +567,11 @@ The full file should look like:
 
 #define NAME_MAX 255
 
-enum flags_set {
-	FOO = 0x01,
-	BAR = 0x02,
-};
-
 struct event {
 	gadget_mntns_id mntns_id;
 	__u32 pid;
 	char comm[TASK_COMM_LEN];
 	char filename[NAME_MAX];
-	__u32 uid;
-	__u32 gid;
-	enum flags_set flags_raw;
 };
 
 // events is the name of the buffer map and 1024 * 256 is its size.
@@ -602,15 +594,8 @@ int enter_openat(struct syscall_trace_enter *ctx)
 	if (!event)
 		return 0;
 
-	event->flags_raw = FOO | BAR;
-
 	event->mntns_id = mntns_id;
 	event->pid = bpf_get_current_pid_tgid() >> 32;
-
-	__u64 uid_gid = bpf_get_current_uid_gid();
-	event->uid = (__u32)uid_gid;
-	event->gid = (__u32)(uid_gid >> 32);
-
 	bpf_get_current_comm(event->comm, sizeof(event->comm));
 	bpf_probe_read_user_str(event->filename, sizeof(event->filename),
 				(const char *)ctx->args[1]);
