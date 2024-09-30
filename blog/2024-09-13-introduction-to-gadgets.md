@@ -73,12 +73,10 @@ mycontainer                33854 172.17.0.3:33860            172.67.206.91:443  
 ```
 
 We can see how the wget process on mycontainer is receiving a lot of traffic
-from 172.67.206.91(IP address of testfile.org), other connections coming from
+from 172.67.206.91 (IP address of testfile.org), other connections coming from
 Chrome as shown in the results as well. This specific Gadget is useful to debug
-network saturation issues, as it shows us whatprocess (and container) is sending
+network saturation issues, as it shows us what process (and container) is sending
 or receiving the most traffic on the host.
-
-TODO: show another Gadget?
 
 Please check the
 [run](https://www.inspektor-gadget.io/docs/latest/reference/run) command
@@ -87,7 +85,7 @@ documentation to get more details.
 ## Gadget Structure
 
 Gadgets are packaged in OCI images as defined by the [OCI
-standa](https://github.com/opencontainers/image-spec/blob/main/spec.md)rd. An
+standard](https://github.com/opencontainers/image-spec/blob/main/spec.md). An
 OCI image is composed of different layers and can support different
 architectures and operating systems. Gadget creation is handled by the ig build
 command.
@@ -103,7 +101,7 @@ The optional metadata file includes extra information about the gadget such as:
 - Name
 - Description
 - Home, source and documentation URLs
-- Datasources: List of datasources provided by the gadget and configuration for
+- Datasources: List of datasources provided by the Gadget and configuration for
   their fields, like how to format when printing to the terminal, skip a
   specific field for json, etc.
 - Parameters: Options exposed to the user to change the behavior of the gadget
@@ -303,7 +301,7 @@ output mode helps to understand what the field with the highest value is, for
 instance, what’s the TCP connection with the most traffic, what’s the file that
 is being read/written the most, etc. This is useful when we want to debug a
 resource saturation issue as these Gadgets tell us who is doing those actions.
-The top_file Gadget we showed above is one example of this kind of data source.
+The top_tcp Gadget we showed above is one example of this kind of data source.
 
 #### Histogram
 
