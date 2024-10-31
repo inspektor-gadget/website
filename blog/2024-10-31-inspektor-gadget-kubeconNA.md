@@ -48,7 +48,7 @@ Hi Inspektors! We are thrilled to announce that Inspektor Gadget will be feature
 **Date:** Wednesday, November 13th  
 **Time:** All Day  
 **Location:** Project Pavillion 15A  
-**Speakers:** Maya Singh, Jose Blanquicet, Mauricio Vasquez Bernal, Chris Kuehl
+**Speakers:** Mauricio Vasquez Bernal, Jose Blanquicet, Chris Kuehl, Maya Singh
 
 **Binary Drift for Containers & Inspektor Gadget**
 
