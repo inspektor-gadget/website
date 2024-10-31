@@ -13,21 +13,29 @@ Hi Inspektors! We are thrilled to announce that Inspektor Gadget will be feature
 
 <!--truncate-->
 
-**Integrating eBPF Superpowers into your Observability Tooling – Cloud Native Rejekts Conference**
+[**Integrating eBPF Superpowers into your Observability Tooling – Cloud Native Rejekts Conference**](https://cfp.cloud-native.rejekts.io/cloud-native-rejekts-na-salt-lake-city-2024/talk/QSADK3/)
 
 **Date:** Sunday, November 11th  
 **Time:** 2:35 PM  
 **Location:** Theater of Kiln  
 **Speakers:** Chris Kuehl & Mauricio Vasquez Bernal
 
-**Inspektor Gadget: eBPF for Observability Made Easy and Approachable**
+[**Inspektor Gadget: eBPF for Observability Made Easy and Approachable**](https://kccncna2024.sched.com/event/1iW8h/inspektor-gadget-ebpf-for-observability-made-easy-and-approachable-project-lightning-talk?iframe=no)
 
 **Date:** Tuesday, November 12th  
 **Time:** 10:34 AM  
 **Location:** Hyatt Regency Level 4 Ballroom BCD  
 **Speakers:** Chris Kuehl
 
-**Exploring eBPF use cases in Cloud Native Security**
+[**Reinventing Seccomp for Fun and Profiles**](https://colocatedeventsna2024.sched.com/event/1izqj/reinventing-seccomp-for-fun-and-profiles-ben-hirschberg-armo-dor-serero-microsoft)
+
+**Date:** Tuesday, November 12th  
+**Time:** 11:15 AM  
+**Location:** Salt Palace Level 1 Grand Ballroom B  
+**Speakers:** Ben Hirschberg & Dor Serero  
+**Note:** eBPF + Cilium Day Co-Located Event
+
+[**Exploring eBPF use cases in Cloud Native Security**](https://colocatedeventsna2024.sched.com/event/1izr8/panel-exploring-ebpf-use-cases-in-cloud-native-security-oshrat-nir-armo-anna-kapuscinska-isovalent-now-part-of-cisco-whitney-lee-cncf-ambassador-maya-singh-microsoft-cortney-nickerson-kubeshop)
 
 **Date:** Tuesday, November 12th  
 **Time:** 11:50 AM  
@@ -35,7 +43,7 @@ Hi Inspektors! We are thrilled to announce that Inspektor Gadget will be feature
 **Speakers:** Maya Singh, Oshrat Nir, Whitney Lee, Anna Kapuscinska, Cortney Nickerson  
 **Note:** eBPF + Cilium Day Co-Located Event
 
-**Inspektor Gadget at CNCF Project Pavillion**
+[**Inspektor Gadget at CNCF Project Pavillion**](https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/program/project-engagement/#project-pavilion)
 
 **Date:** Wednesday, November 13th  
 **Time:** All Day  
@@ -49,7 +57,7 @@ Hi Inspektors! We are thrilled to announce that Inspektor Gadget will be feature
 **Location:** Azure Booth  
 **Speakers:** Maya Singh & Dor Serero
 
-**Contribfest: Enhancing Kubernetes Debugging and Observability with Inspektor Gadget**
+[**Contribfest: Enhancing Kubernetes Debugging and Observability with Inspektor Gadget**](https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/program/project-engagement/#contribfest)
 
 **Date:** Thursday, November 14th  
 **Time:** 2:30 PM  
