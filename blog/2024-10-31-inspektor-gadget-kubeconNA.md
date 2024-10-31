@@ -57,7 +57,7 @@ Hi Inspektors! We are thrilled to announce that Inspektor Gadget will be feature
 **Location:** Azure Booth  
 **Speakers:** Maya Singh & Dor Serero
 
-[**Contribfest: Enhancing Kubernetes Debugging and Observability with Inspektor Gadget**](https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/program/project-engagement/#contribfest)
+[**Contribfest: Enhancing Kubernetes Debugging and Observability with Inspektor Gadget**](https://kccncna2024.sched.com/event/1howr/contribfest-enhancing-kubernetes-debugging-and-observability-with-inspektor-gadget?iframe=no)
 
 **Date:** Thursday, November 14th  
 **Time:** 2:30 PM  
