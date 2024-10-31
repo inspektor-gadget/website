@@ -5,7 +5,8 @@ draft: false
 tags: ["eBPF", "ig", "inspektor gadget", "Gadget"]
 title: "Inspektor Gadget at KubeCon NA"
 slug: /2024/10/inspektor-gadget-kubecon-na
-image: /media/IG schedule KCNA.jpg
+image: /media/IGscheduleKCNA.jpg
+date: 2024-10-31T11:00
 ---
 
 Inspektor Gadget at Cloud Native Rejekts and KubeCon 2024!
