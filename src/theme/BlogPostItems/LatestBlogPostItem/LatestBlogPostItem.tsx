@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./styles.module.css";
-import { useBlogPost } from "@docusaurus/theme-common/internal";
+import { useBlogPost } from '@docusaurus/plugin-content-blog/client';
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import BlogPostItemHeaderAuthors from "../../BlogPostItem/Header/Authors";
 import BlogPostItemHeaderInfo from "../../BlogPostItem/Header/Info";

@@ -5,17 +5,17 @@ draft: false
 tags: ["eBPF", "ig", "inspektor gadget", "Gadget"]
 title: "Inspektor Gadget at Cloud Native Rejekts and KubeCon NA 2024!"
 slug: /2024/10/inspektor-gadget-kubecon-na
-image: /media/IGscheduleKCNA.jpg
+image: /media/ig-kubeconNA-edited.png
 date: 2024-10-31T11:00
 ---
 
-Hi Inspektors! We are thrilled to announce that Inspektor Gadget will be featured in several sessions at the upcoming Cloud Native Rejekts and KubeCon NA 2024 in Salt Lake City, Utah! Our team has earned multiple speaking slots, and we can't wait to share our insights and advancements with the community. Here’s the schedule of our talks and sessions, all times are in local time (Mountain Standard Time):
+Hi Inspektors! We are thrilled to announce that Inspektor Gadget will be featured in several sessions at the upcoming Cloud Native Rejekts and KubeCon NA 2024 conferences in Salt Lake City, Utah! Our team has earned multiple speaking slots, and we can't wait to share our insights and advancements with the community. Here’s the schedule of our talks and sessions, all times are in local time (Mountain Standard Time):
 
 <!--truncate-->
 
 [**Integrating eBPF Superpowers into your Observability Tooling – Cloud Native Rejekts Conference**](https://cfp.cloud-native.rejekts.io/cloud-native-rejekts-na-salt-lake-city-2024/talk/QSADK3/)
 
-**Date:** Sunday, November 11th  
+**Date:** Sunday, November 10th  
 **Time:** 2:35 PM  
 **Location:** Theater of Kiln  
 **Speakers:** Chris Kuehl & Mauricio Vasquez Bernal
@@ -43,12 +43,12 @@ Hi Inspektors! We are thrilled to announce that Inspektor Gadget will be feature
 **Speakers:** Maya Singh, Oshrat Nir, Whitney Lee, Anna Kapuscinska, Cortney Nickerson  
 **Note:** eBPF + Cilium Day Co-Located Event
 
-[**Inspektor Gadget at CNCF Project Pavillion**](https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/program/project-engagement/#project-pavilion)
+[**Inspektor Gadget at CNCF Project Pavilion**](https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/program/project-engagement/#project-pavilion)
 
 **Date:** Wednesday, November 13th  
 **Time:** All Day  
-**Location:** Project Pavillion 15A  
-**Speakers:** Maya Singh, Jose Blanquicet, Mauricio Vasquez Bernal, Chris Kuehl
+**Location:** Project Pavilion 15A  
+**Speakers:** Mauricio Vasquez Bernal, Jose Blanquicet, Chris Kuehl, Maya Singh
 
 **Binary Drift for Containers & Inspektor Gadget**
 
@@ -57,7 +57,7 @@ Hi Inspektors! We are thrilled to announce that Inspektor Gadget will be feature
 **Location:** Azure Booth  
 **Speakers:** Maya Singh & Dor Serero
 
-[**Contribfest: Enhancing Kubernetes Debugging and Observability with Inspektor Gadget**](https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/program/project-engagement/#contribfest)
+[**Contribfest: Enhancing Kubernetes Debugging and Observability with Inspektor Gadget**](https://kccncna2024.sched.com/event/1howr/contribfest-enhancing-kubernetes-debugging-and-observability-with-inspektor-gadget?iframe=no)
 
 **Date:** Thursday, November 14th  
 **Time:** 2:30 PM  

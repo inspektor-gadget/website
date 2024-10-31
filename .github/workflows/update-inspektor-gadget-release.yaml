@@ -16,7 +16,7 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Bump inspektor-gadget version
         id: bump_inspektor_gadget
         run: |
@@ -35,7 +35,7 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
       - name: Create PR
         if: ${{ steps.bump_inspektor_gadget.outputs.changes != '' }}
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: 'docs: Add documentation for ${{ steps.bump_inspektor_gadget.outputs.version }}'
