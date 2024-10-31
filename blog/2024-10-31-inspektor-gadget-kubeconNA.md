@@ -3,7 +3,7 @@ authors: [maya-singh]
 description: "Inspektor-Gadget-at-KubeCon-NA"
 draft: false
 tags: ["eBPF", "ig", "inspektor gadget", "Gadget"]
-title: "Inspektor Gadget at Cloud Native Rejekts and KubeCon 2024!"
+title: "Inspektor Gadget at Cloud Native Rejekts and KubeCon NA 2024!"
 slug: /2024/10/inspektor-gadget-kubecon-na
 image: /media/IGscheduleKCNA.jpg
 date: 2024-10-31T11:00
