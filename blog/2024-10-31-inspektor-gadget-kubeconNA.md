@@ -5,13 +5,14 @@ draft: false
 tags: ["eBPF", "ig", "inspektor gadget", "Gadget"]
 title: "Inspektor Gadget at KubeCon NA"
 slug: /2024/10/inspektor-gadget-kubecon-na
-image: /media/IG at KubeCon NA (2).png
-date: 2024-10-31T11:00
+image: /media/IG schedule KCNA.jpg
 ---
 
 Inspektor Gadget at Cloud Native Rejekts and KubeCon 2024!
 
 Hi Inspektors! We are thrilled to announce that Inspektor Gadget will be featured in several sessions at the upcoming Cloud Native Rejekts and KubeCon NA 2024 in Salt Lake City, Utah! Our team has earned multiple speaking slots, and we can't wait to share our insights and advancements with the community. Here’s the schedule of our talks and sessions, all times are in local time (Mountain Standard Time):
+
+<!--truncate-->
 
 **Integrating eBPF Superpowers into your Observability Tooling – Cloud Native Rejekts Conference**
 
