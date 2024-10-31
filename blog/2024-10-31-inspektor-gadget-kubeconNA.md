@@ -43,7 +43,7 @@ Hi Inspektors! We are thrilled to announce that Inspektor Gadget will be feature
 **Speakers:** Maya Singh, Oshrat Nir, Whitney Lee, Anna Kapuscinska, Cortney Nickerson  
 **Note:** eBPF + Cilium Day Co-Located Event
 
-[**Inspektor Gadget at CNCF Project Pavillion**](https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/program/project-engagement/#project-pavilion)
+[**Inspektor Gadget at CNCF Project Pavilion**](https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/program/project-engagement/#project-pavilion)
 
 **Date:** Wednesday, November 13th  
 **Time:** All Day  
