@@ -5,7 +5,7 @@ draft: false
 tags: ["eBPF", "ig", "inspektor gadget", "Gadget"]
 title: "Inspektor Gadget at Cloud Native Rejekts and KubeCon NA 2024!"
 slug: /2024/10/inspektor-gadget-kubecon-na
-image: /media/IGscheduleKCNA.jpg
+image: /media/ig-kubeconNA-edited.png
 date: 2024-10-31T11:00
 ---
 
@@ -15,7 +15,7 @@ Hi Inspektors! We are thrilled to announce that Inspektor Gadget will be feature
 
 [**Integrating eBPF Superpowers into your Observability Tooling – Cloud Native Rejekts Conference**](https://cfp.cloud-native.rejekts.io/cloud-native-rejekts-na-salt-lake-city-2024/talk/QSADK3/)
 
-**Date:** Sunday, November 11th  
+**Date:** Sunday, November 10th  
 **Time:** 2:35 PM  
 **Location:** Theater of Kiln  
 **Speakers:** Chris Kuehl & Mauricio Vasquez Bernal
