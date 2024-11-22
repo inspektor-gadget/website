@@ -15,20 +15,10 @@ slug: /2024/11/inspektor-gadget-dns
 image: /media/2024-11-21-inspektor-gadget-dns.jpg
 ---
 
-DNS is a critical component of any Kubernetes cluster, and debugging DNS issues can be challenging. In order to
-effectively troubleshoot DNS-related problems, it is essential to understand how DNS requests flow through the cluster.
-The typical components involved in handling DNS requests are:
+In this blog, you will learn about the tools that you can use to debug DNS Request Flows in Kubernetes Clusters. We will also cover the different debugging scenarios and how to fix each of them.
 
-- Application Pod
-- Node Local DNS (optional)
-- kube-dns Service
-- CoreDNS Pods
-- Upstream DNS Server
+This blog is based on the talk from Qasim Sarfraz at ContainerDays 2024. You can watch the full version on Youtube: [Demystifying DNS: A Guide to Understanding and Debugging Request Flows in Kubernetes Clusters](https://www.youtube.com/watch?v=KQpZg_NqbZw).
 
-Tools like CoreDNS log plugin, Hubble, and Inspektor Gadget can help you understand the DNS request flow through different components in the cluster.
-Once you have the necessary visibility into the DNS request flow, we can identify and resolve DNS issues more effectively.
+<!--truncate-->
 
-This is a guest post by our team on the Container Days blog, based on our recent talk at the event where we covered the tools
-and techniques that can help you debug DNS request flows in Kubernetes clusters. For an in-depth look, check out the full post on their blog!
-
-[Read the full post on Container Days blog](https://www.containerdays.io/blog/debugging-dns-request-flows-in-kubernetes-clusters/).
+[Read the full post on the Container Days blog](https://www.containerdays.io/blog/debugging-dns-request-flows-in-kubernetes-clusters/).
