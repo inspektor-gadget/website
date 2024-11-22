@@ -17,7 +17,7 @@ image: /media/2024-11-21-inspektor-gadget-dns.jpg
 
 In this blog, you will learn about the tools that you can use to debug DNS Request Flows in Kubernetes Clusters. We will also cover the different debugging scenarios and how to fix each of them.
 
-This blog is based on the talk from Qasim Sarfraz at ContainerDays 2024. You can watch the full version on Youtube: [Demystifying DNS: A Guide to Understanding and Debugging Request Flows in Kubernetes Clusters](https://www.youtube.com/watch?v=KQpZg_NqbZw).
+This blog is based on the talk from Qasim Sarfraz at ContainerDays 2024.
 
 <!--truncate-->
 
