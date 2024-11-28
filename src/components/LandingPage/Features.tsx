@@ -10,7 +10,7 @@ export function Features() {
       <div className={style.container}>
         <h2>Powerful Observability tooling</h2>
         <p className={style.description}>
-          Leverage the power of eBPF to collect systems insights. Leverege Inspektor Gadget to make doing so fast and efficient.
+          Leverage the power of eBPF to collect systems insights. Leverage Inspektor Gadget to make doing so fast and efficient.
         </p>
         <div className={clsx(style.features)}>
           <div className={style.feature}>
