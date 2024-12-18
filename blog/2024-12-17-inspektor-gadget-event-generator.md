@@ -21,7 +21,7 @@ image: /media/2024-05-31-cncf-mentoring-logo.jpg
 ---
 
 Hello Inspektors!
-I'm [Kapil Sharma](https://github.com/h4l0gen/), I have been working with [Qasim Sarfraz](https://github.com/mqasimsarfraz/) and [Burak OK](https://github.com/burak-ok) as part of the Mentorship Program. In this blog post, we will understand the capabilities of [Event Generator](https://github.com/inspektor-gadget/inspektor-gadget/issues/3193). Which can be used to debug kubernetes pods and generate specific events.
+I'm [Kapil Sharma](https://github.com/h4l0gen/), I have been working with [Qasim Sarfraz](https://github.com/mqasimsarfraz/) and [Burak OK](https://github.com/burak-ok) as part of the Mentorship Program. In this blog post, we will explore the capabilities of [Event Generator](https://github.com/inspektor-gadget/inspektor-gadget/issues/3193). Which can be used to debug Kubernetes by generating specific events.
 
 In this blog we will discuss need of Event Generator, how to use it and benefits of it?
 
