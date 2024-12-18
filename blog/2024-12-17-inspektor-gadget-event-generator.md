@@ -33,7 +33,7 @@ Before diving into the details of the event generation feature, let's first unde
 Inspektor Gadget is an eBPF-based tool and system inspection framework for Kubernetes, containers, and Linux hosts. It translates low-level Linux resources into higher-level concepts like Kubernetes pods and containers. You can use it as a standalone tool or integrate it into your existing workflows. Inspektor Gadget offers a range of gadgets and also gives you the flexibility to create custom ones. It provides several commands to interact with image-based gadgets, which you can explore further in the documentation.
 
 ## The Need for Event Generation in Inspektor Gadget
-Now that we understand what Inspektor Gadget is, let's discuss the need for an event generation feature:
+Now that we understand what Inspektor Gadget is, let's discuss why an event generation feature is needed:
 
 - Testing and Debugging: When working with complex systems like Kubernetes clusters, generating realistic events is crucial for effective testing and debugging. The event generation feature in Inspektor Gadget provides a convenient way to simulate DNS and HTTP events within a cluster, enabling users to test their applications under different scenarios and identify potential issues or bottlenecks.
 - Monitoring and Performance Analysis: By generating events, users can gain valuable insights into the behavior and performance of their applications.
