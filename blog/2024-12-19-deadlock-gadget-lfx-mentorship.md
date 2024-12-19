@@ -32,7 +32,9 @@ A mutex (used for _mutual exclusion_) is an object used to control access to a m
 
 Now let’s say we reach a state as depicted in the image.
 
-![A diagram depicting a deadlock](/media/2024-12-19-deadlock-depiction.svg)
+<p align="center">
+  <img src="/media/2024-12-19-deadlock-depiction.svg" alt="A diagram depicting a deadlock" />
+</p>
 
 Thread 1, currently using mutex 1, requests access to lock mutex 2, but has to wait as mutex 2 is being used by thread 2. Now thread 2 requests access to mutex 3, but also has to wait as mutex 3 is being used by thread 3. Finally, thread 3 requests access to mutex 1, but has to wait as, in case you forgot, mutex 1 is being used by thread 1.
 We have come full circle ending up with the threads being stuck in an infinite wait cycle due to mutex lock order inversions, thus hanging the process.
@@ -58,7 +60,7 @@ int main(void) {
     static std::mutex static_mutex3;
     std::mutex local_mutex4;
     
-    std::cout << "sleeping for a bit to allow trace to attach..." << std::endl;
+    std::cout << "waiting for trace to attach..." << std::endl;
     std::this_thread::sleep_for(std::chrono::seconds(10));
     std::cout << "starting program..." << std::endl;
     
@@ -89,7 +91,7 @@ int main(void) {
     t3.join();
     t4.join();
     
-    std::cout << "sleeping to allow trace to collect data..." << std::endl;
+    std::cout << "waiting for trace to collect data..." << std::endl;
     std::this_thread::sleep_for(std::chrono::seconds(5));
     std::cout << "done!" << std::endl;
 }
@@ -121,7 +123,9 @@ Once attached, it now allows us to intercept and trace mutex acquisitions and re
 
 Here’s a simple high level overview of how the gadget is detecting potential deadlocks:
 
-![A flowchart depicting the deadlock detection process in the new gadget](/media/2024-12-19-deadlock-detection.svg)
+<p align="center">
+  <img src="/media/2024-12-19-deadlock-detection.svg" alt="A flowchart depicting the deadlock detection process in the new gadget" />
+</p>
 
 This gadget detects "potential" deadlocks and not just actual deadlocks, as a deadlock that didn't happen during the trace could happen in the future.
 A deadlock occurring depends on various factors such as thread scheduling and order of mutex acquisitions/releases, and hence it makes sense to report mutex lock order inversions as potentially unsafe resource management.
