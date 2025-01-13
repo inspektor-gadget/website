@@ -1,7 +1,6 @@
 ---
 authors: ["bharadwaja-meher"]
 description: "Introducing Chaos Engineering Gadgets"
-draft: true
 tags:
   [
     "LFXMentorship",
@@ -16,6 +15,7 @@ tags:
 title: "Introducing Chaos Engineering Gadgets"
 slug: /2024/11/introducing-chaos-engineering-gadgets
 image: /media/2024-05-31-cncf-mentoring-logo.jpg
+date: 2025-01-13T11:00
 ---
 
 # Introducing Chaos Engineering Gadgets
