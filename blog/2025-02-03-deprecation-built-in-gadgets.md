@@ -15,6 +15,7 @@ slug: /2025/02/deprecation-built-in-gadgets
 image: /media/splash/2025-02-03-sunset.jpg
 ---
 Hi Inspektors, with the release of [v0.37.0](https://github.com/inspektor-gadget/inspektor-gadget/releases/tag/v0.37.0), we are announcing the deprecation of built-in gadgets, which will be removed from Inspektor Gadget in six months. We have made significant progress in making Inspektor Gadget a modular framework that allows users to easily collect Linux kernel data using eBPF. Image-based gadgets, a key component of this framework, should be used moving forward and will replace built-in gadgets.
+<!-- truncate -->
 
 While built-in gadgets were great for the initial scope of the project, when Inspektor Gadget was exclusively an interactive debugging tool, the project has evolved to become a general data collection tool. This evolution created a need for a more extensible version of gadgets that aren’t embedded into the core binary. Image-based gadgets were created as a response to these requirements and have become a fundamental building block of the Inspektor Gadget framework. 
 
