@@ -24,6 +24,8 @@ We're back with the highlights of another [Inspektor Gadget Release](https://git
 
 [New Contributors](#new-contributors)
 
+<!-- truncate -->
+
 ## Support for TC Programs
 
 Inspektor Gadget now supports Traffic Control (TC) programs. TC programs can be used to inspect and modify the content of the network packets. Before this enhancement, Inspektor Gadget could only observe the system, now with the support of TC programs, it's possible to write gadgets that modify the network packets, like firewalls, Network Address Translations (NAT), etc.

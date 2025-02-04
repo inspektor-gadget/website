@@ -13,6 +13,8 @@ some months of work, and it is by far our biggest release ever. In this
 blog post we go through the new features and relevant changes in this
 version.
 
+<!-- truncate -->
+
 # Better gadgets categorization
 
 We reorganized the kubectl-gadget CLI, grouping the different gadgets

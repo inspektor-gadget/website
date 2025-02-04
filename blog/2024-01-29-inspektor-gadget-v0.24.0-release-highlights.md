@@ -20,6 +20,8 @@ This summary includes:
 
 [Support of fentry, fexit, raw_tracepoint](#support-of-fentry-fexit-raw-tracepoint)
 
+<!-- truncate -->
+
 ## Ig image remove
 
 The _ig image remove_ command was added which enables users to remove image based gadgets from their local storage\. It leverages the upstream project Oras, which [we contributed to](https://github.com/oras-project/oras-go/pull/647) in order to enable the “remove” functionality\.

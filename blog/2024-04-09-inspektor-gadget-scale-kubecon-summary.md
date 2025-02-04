@@ -14,6 +14,8 @@ Over the past few weeks, we’ve had the opportunity to get out into the communi
 
 It was great seeing so many friendly faces at SCaLE 21x in sunny Pasadena, California the weekend of March 15<sup>th</sup>\. On Saturday afternoon [we presented Inspektor Gadget as a part of the Observability track at SCaLE](https://www.youtube.com/watch?v=o7xv1BsQDhc)\. There was a great turnout and we loved hearing your questions about all things Inspektor Gadget\. There was interest in the safety of running gadgets in the kernel and excitement around the API the team is working on as a mechanism of leveraging the magic of Inspektor Gadget\. As a part of the presentation, we asked the audience what they thought of when you hear “eBPF\.” Here are the responses:
 
+<!-- truncate -->
+
 ![Image showing the responses from Menti poll](/media/SCaLE-Menti-Responses.jpg)
 
 ![Image showing Maya at SCaLE](/media/MayaatScaleMenti.jpg)

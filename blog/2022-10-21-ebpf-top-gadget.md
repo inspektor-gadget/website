@@ -50,6 +50,8 @@ three projects using eBPF programs on Kubernetes:
 2. Falco
 3. Cilium
 
+<!-- truncate -->
+
 ## Inspektor Gadget
 
 Let's start two gadgets on an AKS cluster to see how they perform: the

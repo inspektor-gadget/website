@@ -21,6 +21,8 @@ My name is Tianyi Liu. As a mentee in the [LFX Mentorship program](https://mento
 During the work, [Francis Laniel](https://github.com/eiffel-fl), [Michael Friese](https://github.com/flyth) and many people in the Inspektor Gadget community also helped me a lot.
 As the project comes to an end, I am writing this report to summarize my work over the past three months and to introduce the new features with technical details.
 
+<!-- truncate -->
+
 # Supporting Uprobe
 
 [Uprobe](https://lwn.net/Articles/499190/) is a commonly used type of `perf_events` in Linux.

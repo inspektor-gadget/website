@@ -46,6 +46,8 @@ But if the tool will be running on [Kubernetes worker nodes](https://kubernetes.
 In this blog, we will look at the alternatives for the above approach and introduce a Golang
 [package](https://pkg.go.dev/github.com/inspektor-gadget/inspektor-gadget@v0.12.1/pkg/container-utils/oci-annotations) that uses it.
 
+<!-- truncate -->
+
 ## The Container Stack in Kubernetes
 
 In Kubernetes, a component called [kubelet](https://kubernetes.io/docs/concepts/overview/components/#kubelet) takes care of talking to [container runtimes](https://kubernetes.io/docs/concepts/overview/components/#container-runtime) to handle container workloads.

@@ -23,6 +23,8 @@ external process. In this blog post, we'll describe the process we went
 through for rewriting the control plane of the BCC tools in Golang, the
 different blockers we faced and how we addressed them.
 
+<!-- truncate -->
+
 # Motivation
 
 The BCC repository contains a very well-known set of eBPF-based tools to
