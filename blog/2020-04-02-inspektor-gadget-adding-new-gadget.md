@@ -40,6 +40,8 @@ With this change, BCC tools can be integrated seamlessly into Inspektor Gadget.
 Indeed, bindsnoop was integrated with only [a few lines of
 code](https://github.com/inspektor-gadget/inspektor-gadget/pull/35/files#diff-f616fa5f11da59a9ae7344d196bbf357R40-R43).
 
+<!-- truncate -->
+
 ## How it works
 
 The Gadget Tracer Manager is a daemon deployed as a DaemonSet that keeps track

@@ -18,6 +18,8 @@ image: /media/2023-02-15-minikube-inspektor-gadget.jpg
 
 **TL; DR**: Inspektor Gadget is now available as an [addon](https://minikube.sigs.k8s.io/docs/handbook/addons/inspektor-gadget/) in [Minikube](https://github.com/kubernetes/minikube).
 
+<!-- truncate -->
+
 When creating a tool for Kubernetes, it's crucial to be able to test it with various cluster configurations. In the case of Inspektor Gadget, we wanted to:
 
 - Run it against a cluster of multiple [Kubernetes nodes](https://kubernetes.io/docs/concepts/overview/components/#node-components).

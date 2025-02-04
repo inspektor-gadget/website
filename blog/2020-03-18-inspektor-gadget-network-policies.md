@@ -21,6 +21,8 @@ collection of “gadgets” for debugging and inspecting Kubernetes applications
 Today I would like to introduce Inspektor Gadget’s newest gadget that helps to
 write proper Kubernetes network policies.
 
+<!-- truncate -->
+
 ## Writing Kubernetes network policies easily
 
 Securing your Kubernetes clusters is a task that involves many aspects:

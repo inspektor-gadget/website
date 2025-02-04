@@ -22,6 +22,8 @@ rapidly identified and solved the problem, using BPF tools from the BCC
 project. Finally, I’ll explain how Inspektor Gadget enables you to easily have
 access to these same BPF tools for your own Kubernetes installation.
 
+<!-- truncate -->
+
 ## Description of the problem
 
 The Kubernetes cluster runs, among other things, nginx with fluentd and Apache

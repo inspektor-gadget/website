@@ -30,6 +30,8 @@ Due to its extensive use of low-level kernel concepts including eBPF, porting
 Inspektor Gadget to `arm64` presented some unique challenges.
 This blog post describes those technical challenges and how we resolved them.
 
+<!-- truncate -->
+
 # The `bcc` gadgets
 
 `bcc` gadgets are wrappers around

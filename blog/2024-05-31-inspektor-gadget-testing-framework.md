@@ -22,6 +22,8 @@ Hola Inspektors! I was selected by [Alban Crequy](https://github.com/alban) and 
 
 In this blog, we will cover why this framework was needed and how you can use it to test your gadgets effectively, but before that let’s understand what Inspektor Gadget and Image-Based Gadgets are.
 
+<!-- truncate -->
+
 # What is Inspektor Gadget?
 
 Inspektor Gadget is an eBPF tool and systems inspection framework for Kubernetes, containers, and Linux hosts. It maps low-level Linux resources to high-level concepts, like Kubernetes pods, containers, etc. You can use it as a standalone tool or integrate it into your existing tooling. With Inspektor Gadget, you have access to a variety of [built-in gadgets](https://www.inspektor-gadget.io/docs/latest/builtin-gadgets/), and you also have the flexibility to create your own.

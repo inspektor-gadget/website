@@ -35,6 +35,8 @@ Golang packages can be used. Specifically, we'll cover the following:
 We try to keep these examples as simple as possible to focus on the
 package itself, a real-world usecase is left to the reader.
 
+<!-- truncate -->
+
 # Architecture
 
 An application must create an instance of a tracer to get events on the
