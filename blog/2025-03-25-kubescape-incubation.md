@@ -13,7 +13,7 @@ tags:
   ]
 title: "Kubescape Reaches Incubation"
 slug: /2025/03/kubescape-reaches-incubation
-image: /media/kubescapebanner.jpg
+image: /media/kubescapebanner.png
 ---
 
 # Kubescape Reaches Incubation
