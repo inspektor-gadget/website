@@ -28,7 +28,7 @@ image: /media/headlamp-plugin-splash.jpg
 
 Inspektor Gadget began as a set of command line tools that collect systems data and now offers a number of interfaces to make use of that data . This data can be made more effective by integrating it with other tools that streamline visualization and relate the data to resources.
 
-To provide an interactive and visual user experience, we've worked with the Headlamp team to develop a plugin for Headlamp that seamlessly integrates Inspektor Gadget into the Headlamp UI. This plugin adds a new Gadgets section to Headlamp’s sidebar, allowing users to explore the different gadgets available and understand the data within their Kubernetes environment – including visualizing it alongside other cluster resources. The Inspektor Gadget plugin for Headlamp provides a user-friendly interface for interacting with Inspektor Gadget’s features.
+To provide an interactive and visual user experience, we've worked with the Headlamp team to develop a [plugin for Headlamp](https://github.com/inspektor-gadget/headlamp-plugin) that seamlessly integrates Inspektor Gadget into the Headlamp UI. This plugin adds a new Gadgets section to Headlamp’s sidebar, allowing users to explore the different gadgets available and understand the data within their Kubernetes environment – including visualizing it alongside other cluster resources. The Inspektor Gadget plugin for Headlamp provides a user-friendly interface for interacting with Inspektor Gadget’s features.
 
 <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/fzDZXeK7Ric?si=38PeLBBKXDIBUwuN" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
@@ -53,7 +53,7 @@ We're excited to announce that we'll be showcasing this plugin at KubeCon Europe
   - Level 3, ICC Capital Suite 1
 * **Contribfest: Kubernetes Observability Simplified: Build, Debug, and Monitor with Inspektor Gadget**
   - April 3rd, 2:15pm
-  - Level 3 | ICC Capital Suite 17
+  - Level 3, ICC Capital Suite 17
 
 We invite you to try the plugin and share your feedback with us. Together, we can continue to advance the state of UI and UX around Kubernetes.
 Thank you for your support, and we look forward to seeing you at KubeCon Europe!
