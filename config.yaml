@@ -5,16 +5,16 @@ params:
     - design
     external_docs:
     - repo: https://github.com/inspektor-gadget/inspektor-gadget.git
+      name: v0.39.0
+      branch: v0.39.0
+      dir: docs
+    - repo: https://github.com/inspektor-gadget/inspektor-gadget.git
       name: v0.38.1
       branch: v0.38.1
       dir: docs
     - repo: https://github.com/inspektor-gadget/inspektor-gadget.git
       name: v0.38.0
       branch: v0.38.0
-      dir: docs
-    - repo: https://github.com/inspektor-gadget/inspektor-gadget.git
-      name: v0.37.0
-      branch: v0.37.0
       dir: docs
     - repo: https://github.com/inspektor-gadget/inspektor-gadget.git
       name: latest
