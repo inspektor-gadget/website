@@ -233,14 +233,7 @@ def copy_external_docs(linked_dir, link_name):
             # remove folder from destination
             shutil.rmtree(folder_path)
 
-    # Hack for v0.37.0
-    # TODO: Remove once v0.37.0 is not listed on config.yaml
-    if link_name == 'v0.37.0' or link_name == 'latest':
-        # Copy examples to api folder so they can be embedded. Using a soft link
-        # doesn't work when building this for azure static websites.
-        src = os.path.join(src_dir, '../examples/gadgets')
-        dst = os.path.join(dst_dir, 'api/_gadgets')
-        shutil.copytree(src, dst)
+
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
