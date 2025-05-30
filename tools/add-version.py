@@ -27,16 +27,34 @@ def add_version(config_file_path, version, max_versions):
         'dir': 'docs',
     }
 
+    new_version_latest = {
+        'repo': 'https://github.com/inspektor-gadget/inspektor-gadget.git',
+        'name': 'latest',
+        'branch': version,
+        'dir': 'docs',
+    }
+
     external_docs = config['params']['docs']['external_docs']
-    external_docs.insert(0, new_version)
+    new_external_docs = [new_version_latest, new_version]
 
-    size = len(external_docs)
-    if size > max_versions:
-        # Put latest at the before latest element and remove the latest element.
-        external_docs[size - 2] = external_docs[size - 1]
-        external_docs.pop()
+    count = 2
+    for docs in external_docs:
+        if count >= max_versions:
+            break
+        if docs['name'] == 'latest' or docs['name'] == 'main' or docs['name'] == version:
+            continue
+        new_external_docs.append(docs)
+        count += 1
 
-    config['params']['docs']['external_docs'] = external_docs
+    main_version = {
+        'repo': 'https://github.com/inspektor-gadget/inspektor-gadget.git',
+        'name': 'main',
+        'branch': 'main',
+        'dir': 'docs',
+    }
+
+    new_external_docs.append(main_version)
+    config['params']['docs']['external_docs'] = new_external_docs
 
     config_file = open(config_file_path, "w")
     config_file.write(yaml.dump(config, sort_keys=False))
