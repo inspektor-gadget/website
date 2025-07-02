@@ -9,15 +9,18 @@ import { visit } from 'unist-util-visit';
 
 const tagConstant = '%IG_TAG%';
 const branchConstant = '%IG_BRANCH%';
+const chartConstant = '%IG_CHART%';
 
 export default function versionReplacer() {
   return (tree, vfile) => {
     // Extract the version from the path of the file being built
     const versionMatch = vfile.path.match(/version-v(\d+\.\d+\.\d+)/);
     const version = versionMatch ? "v"+versionMatch[1] : null;
+    const versionNoV = versionMatch ? versionMatch[1] : null;
 
     const tag = version ? version : 'latest';
     const branch = version ? version : 'main';
+    const chart = versionNoV ? versionNoV : '1.0.0-dev';
 
     // Traverse the MDX AST tree
     visit(tree, (node) => {
@@ -29,6 +32,9 @@ export default function versionReplacer() {
         if (node.value.includes(branchConstant)) {
           node.value = node.value.replace(new RegExp(branchConstant, 'g'), branch);
         }
+        if (node.value.includes(chartConstant)) {
+          node.value = node.value.replace(new RegExp(chartConstant, 'g'), chart);
+        }
       }
 
       // Handle code block nodes
@@ -39,6 +45,9 @@ export default function versionReplacer() {
         if (node.value.includes(branchConstant)) {
           node.value = node.value.replace(new RegExp(branchConstant, 'g'), branch);
         }
+        if (node.value.includes(chartConstant)) {
+          node.value = node.value.replace(new RegExp(chartConstant, 'g'), chart);
+        }
 
       // Handle links
       } else if (node.type === 'link') {
@@ -47,6 +56,9 @@ export default function versionReplacer() {
         }
         if (node.url.includes(branchConstant)) {
           node.url = node.url.replace(new RegExp(branchConstant, 'g'), branch);
+        }
+        if (node.url.includes(chartConstant)) {
+          node.url = node.url.replace(new RegExp(chartConstant, 'g'), chart);
         }
       }
     });
