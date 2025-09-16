@@ -1,5 +1,5 @@
 ---
-authors: ["Emidowojo"]
+authors: ["emidowojo-opaluwa"]
 title: "Tracing Growth: Lessons from My LFX Mentorship with Inspektor Gadget"
 description: "Reflections on my LFX mentorship journey with Inspektor Gadget and Traceloop"
 draft: false
