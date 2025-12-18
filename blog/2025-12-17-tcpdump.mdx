@@ -1,0 +1,213 @@
+---
+authors: ["michael-friese"]
+title: "Debugging Kubernetes Network Issues with Inspektor Gadget's tcpdump Gadget"
+description: "Debugging Kubernetes Network Issues with Inspektor Gadget's tcpdump Gadget"
+draft: false
+tags: ["inspektor-gadget", "bpf", "tcpdump", "pcap", "wireshark", "extcap"]
+slug: /2025/12/tcpdump
+image: /media/blog/2025-12-17-tcpdump/title.png
+---
+
+You're troubleshooting a service outage in production. Your application logs show connection timeouts, but you can't see
+what's actually happening on the network. Traditional tcpdump would require SSHing into a container, installing binaries
+you don't have permission to change, or restarting your pod with a privileged sidecar. By the time you've navigated
+those hurdles, the issue has either disappeared or your debugging window has closed.
+
+This is the reality of network troubleshooting in Kubernetes. The tools exist, but they feel fundamentally at odds with
+how containers and orchestration work.
+
+What if you could capture network traffic—complete with Kubernetes context—without touching a single container? What if
+you could do it from your laptop in Wireshark, watching live traffic stream in, each packet tagged with its pod name,
+namespace, and container? That's no longer hypothetical. Inspektor Gadget's tcpdump gadget, released in v0.45.0, makes
+this possible using eBPF—and a new Wireshark integration brings it all together seamlessly.
+
+<!-- truncate -->
+
+> Despite it's name, tcpdump is not restricted to TCP traffic - it captures any kind of network traffic on your
+> host or containers.
+
+### The Problem with Traditional Network Debugging
+
+tcpdump is powerful but designed for a different era. It assumes you have shell access to machines, permissions to
+install utilities, and stable images where binaries exist. In Kubernetes:
+
+- Many pods run distroless images with no tcpdump binary (good!)
+- Installing tools means modifying layers or restarting workloads
+- Privileged access is audited and often restricted
+- You lose pod context instantly once you exec into a container
+
+Even clever workarounds like ksniff (which uploads static binaries) or debug containers leave you managing files,
+context switches, and manual correlation between network packets and Kubernetes resources. It's friction where there
+shouldn't be any.
+
+### eBPF Changes the Game
+
+eBPF programs run in kernel space without modifying containers or requiring privileged pods. They observe system events
+at the source. For network debugging, this means capturing packets before they even reach userspace—invisibly,
+efficiently, from outside the container boundary.
+
+Inspektor Gadget's tcpdump gadget does exactly this. It's a specialized eBPF program that hooks into the kernel's packet
+handling and captures traffic according to filters you specify.
+
+The magic part: it automatically enriches every captured
+packet with Kubernetes metadata—namespace, pod name, container name, the node it ran on—just what you'd expect from
+working with Inspektor Gadget. When you export that data to pcap-ng format (the modern successor to tcpdump's pcap),
+Wireshark can display it per-packet.
+
+No binaries in containers. No pod restarts. No privilege escalation. Just packets.
+
+<center>
+<figure>
+![Piping IG output to tcpdump](/media/blog/2025-12-17-tcpdump/tcpdump-k8s-pcap.png)
+<figcaption>Piping IG output to tcpdump</figcaption>
+</figure>
+</center>
+
+### From CLI to Wireshark: The Full Workflow
+
+Let's walk through a real scenario. Your backend service is experiencing intermittent database connection timeouts. You
+suspect a network issue, but logs don't show much.
+First, capture some traffic:
+
+```bash
+kubectl gadget run tcpdump:latest \
+  --namespace production \
+  --podname backend-service-7d9c8f \
+  --pf "port 5432" \
+  -o pcap-ng > db-connections.pcapng
+```
+
+This runs the tcpdump gadget on your cluster, filtering for PostgreSQL traffic (port 5432) from a specific pod. The --pf
+flag accepts standard tcpdump filter syntax—it's the same language you'd use with traditional tcpdump (we're using
+Cloudflare's cbpfc and packetcap's go-pcap library to compile from filter expression to CBPF and then to eBPF). You've
+just captured raw network packets without touching the pod.
+Then, open it in Wireshark.
+Load the pcap-ng file. Install Inspektor Gadget's custom dissector plugin (a separate, lightweight addition), and now
+each packet shows:
+
+```
+Kubernetes Namespace: production
+Pod Name: backend-service-7d9c8f
+Container Name: backend
+Node: worker-2
+```
+
+You're now correlating network-layer failures directly to Kubernetes resources. You can see TCP RST packets,
+retransmissions, timeout patterns—all tagged with exactly which pod and container they came from. For finding connection
+issues, this is game-changing.
+
+### But There's More: Live Capture from Wireshark
+
+<center>
+<figure>
+![IG-EXTCAP in Wireshark](/media/blog/2025-12-17-tcpdump/extcap-wireshark-01.png)
+<figcaption>Inspektor Gadget Sources within Wireshark</figcaption>
+</figure>
+</center>
+
+That was the foundation. Now imagine doing this in real-time without ever touching the CLI.
+A new [Wireshark extcap plugin](https://github.com/flyth/ig-extcap) makes Inspektor Gadget's tcpdump gadget appear as
+capture sources directly inside Wireshark. When you open Wireshark's Capture Interfaces dialog, you'll see two new options:
+
+- Inspektor Gadget (Daemon): For debugging containers or the host itself on a Linux node
+- Inspektor Gadget on Kubernetes: For live cluster traffic
+  Select one, optionally configure a filter or target pod, hit "Start," and watch live traffic appear in Wireshark with
+  full Kubernetes enrichment. No files to manage. No CLI context switches. The dissector plugin automatically decorates
+  each packet with namespace, pod, container, and node information as it arrives.
+  This transforms Wireshark from a file-based analyzer into a live, Kubernetes-aware packet inspection tool. You stay in
+  one place, watching your cluster's network behavior unfold.
+
+<center>
+<figure>
+![EXTCAP Configuration](/media/blog/2025-12-17-tcpdump/extcap-wireshark-02.png)
+<figcaption>Inspektor Gadget EXTCAP Configuration within Wireshark</figcaption>
+</figure>
+
+<figure>
+![Dissector in Action](/media/blog/2025-12-17-tcpdump/extcap-wireshark-03.png)
+<figcaption>Inspektor Gadget dissector in action</figcaption>
+</figure>
+</center>
+
+### Real Debugging Scenarios
+
+### Investigating Database Connectivity
+
+Your microservice shows random connection timeouts to PostgreSQL. Open Wireshark, select Inspektor Gadget on Kubernetes,
+set the filter to port 5432 for your production namespace, and start capture. Within seconds, you see which pods are
+failing handshakes and whether the server is sending RST packets or just dropping connections. Each packet is labeled
+with its source pod—debugging moves from "something failed" to "backend-service-xyz's connections are being reset by the
+database."
+
+### Tracking Down API Latency
+
+A user-facing API suddenly feels sluggish. Is it the server, or the network? Live capture on HTTP ports ( port 80 or
+443) shows you the time between SYN and SYN-ACK (network latency), data packet timings (server processing), and any
+retransmissions (network issues). Correlation with pod names reveals whether specific instances are slow or if it's
+systemic.
+
+### Debugging DNS Issues
+
+CoreDNS in kube-system is dropping DNS queries from certain pods. Capture on port 53, filter by the querying pod
+namespace, and watch the traffic. You'll immediately spot malformed queries, timeouts, or NXDOMAIN responses—all tied to
+the originating pod.
+
+### The Technical Foundation
+
+Under the hood, Inspektor Gadget attaches eBPF programs to kernel network tracepoints. These programs run in kernel
+context, capturing packets as they flow through the network stack. The --pf filter syntax you provide gets compiled to
+eBPF bytecode—this is where Cloudflare's cbpfc library and packetcap/go-pcap come in, translating classic BPF (the
+language tcpdump uses) into eBPF.
+Simultaneously, Inspektor Gadget's enrichment layer maps kernel namespace IDs to Kubernetes objects.
+All this metadata gets embedded into pcap-ng custom blocks—a format extension that Wireshark understands natively.
+
+The extcap plugin implements Wireshark's external capture protocol, acting as a specialized client for the tcpdump
+gadget. It connects to your Inspektor Gadget instance (running as a daemon on a node or as a DaemonSet in Kubernetes),
+translates your Wireshark filter options into gadget flags, and streams pcap-ng packets back to Wireshark for live
+display.
+
+The result is a clean abstraction: Wireshark just sees capture interfaces, Inspektor Gadget handles the eBPF and
+Kubernetes complexity, and you get packet-level visibility with orchestration context—exactly what modern infrastructure
+debugging requires.
+
+### When You Need It Most
+
+This workflow shines when:
+
+- You suspect network-level issues but logs are silent
+- You're troubleshooting across multiple pods or nodes
+- You need packet-level detail without the overhead of application-level instrumentation
+- You want to understand traffic patterns between microservices for security or performance analysis
+
+### Getting Started
+
+Deploying Inspektor Gadget is straightforward. See the
+[official documentation](https://inspektor-gadget.io/docs/latest/quick-start) for installation steps.
+
+Once deployed, capture traffic with:
+
+```bash
+kubectl gadget run tcpdump:latest --namespace <ns> --podname <pod> --pf "<filter>" -o pcap-ng > capture.pcapng
+```
+
+Or install the [Wireshark extcap plugin](https://github.com/flyth/ig-extcap) and capture live. Both workflows produce
+the same enriched pcap-ng output—choose based on whether you prefer CLI control or real-time Wireshark visibility.
+
+### Beyond tcpdump
+
+The --pf filtering capability extends to the Inspektor Gadget framework, not just tcpdump. So when you're building new
+gadgets, you can potentially trace TCP connections, monitor top talkers, or profile DNS resolution—all with the same
+powerful, familiar filter syntax. But tcpdump is where you'll feel the impact first, turning Wireshark into a
+Kubernetes-native debugging tool.
+
+### Conclusion
+
+Network debugging in Kubernetes no longer requires compromise. With Inspektor Gadget's tcpdump gadget and Wireshark
+integration, you get the power of kernel-level packet capture, the context of Kubernetes metadata, and the familiarity
+of tools you already know.
+
+Whether you're chasing a production incident or optimizing service communication, this workflow puts answers at your
+fingertips—no containers modified, no privileges escalated, no friction. Just the network clarity you need, delivered
+the way modern infrastructure demands.
+
+Start exploring today, and bring packet-level debugging into the cloud-native era.
