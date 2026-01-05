@@ -121,6 +121,9 @@ const config: Config = {
             [latestVersionName]: {
               banner: "none",
             },
+            main: {
+              banner: "none",
+            },
           },
           sidebarPath: "./sidebars.ts",
           editUrl:
