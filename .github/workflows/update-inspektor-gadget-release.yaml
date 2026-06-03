@@ -20,9 +20,14 @@ jobs:
       - name: Bump inspektor-gadget version
         id: bump_inspektor_gadget
         run: |
-          inspektor_gadget_version=$(curl --silent https://api.github.com/repos/inspektor-gadget/inspektor-gadget/releases/latest | jq .tag_name | tr -d '"')
+          inspektor_gadget_version=$(curl --silent https://api.github.com/repos/inspektor-gadget/inspektor-gadget/releases/latest | jq -r .tag_name)
 
-          if [ -z "$(grep $inspektor_gadget_version config.yaml)"]; then
+          if [ -z "$inspektor_gadget_version" ] || [ "$inspektor_gadget_version" = "null" ]; then
+            echo "Failed to fetch latest version"
+            exit 1
+          fi
+
+          if [ -z "$(grep "$inspektor_gadget_version" config.yaml)" ]; then
             python3 tools/add-version.py config.yaml $inspektor_gadget_version
           fi
 
