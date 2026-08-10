@@ -4,6 +4,8 @@
 //   releases it contains the version number with the "v" prefix. For the latest
 //   version it contains the "latest" string.
 // - %IG_BRANCH%' - This constant contains the tag of the name of the branch
+// - %IG_CHART% - This constant contains the version without the "v" prefix.
+//   For the latest version it contains the latest stable version.
 
 import { visit } from 'unist-util-visit';
 
@@ -11,7 +13,7 @@ const tagConstant = '%IG_TAG%';
 const branchConstant = '%IG_BRANCH%';
 const chartConstant = '%IG_CHART%';
 
-export default function versionReplacer() {
+export default function versionReplacer({ stableVersion = '1.0.0-dev' } = {}) {
   return (tree, vfile) => {
     // Extract the version from the path of the file being built
     const versionMatch = vfile.path.match(/version-v(\d+\.\d+\.\d+)/);
@@ -20,7 +22,7 @@ export default function versionReplacer() {
 
     const tag = version ? version : 'latest';
     const branch = version ? version : 'main';
-    const chart = versionNoV ? versionNoV : '1.0.0-dev';
+    const chart = versionNoV ? versionNoV : stableVersion;
 
     // Traverse the MDX AST tree
     visit(tree, (node) => {

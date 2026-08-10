@@ -7,6 +7,7 @@ import versions from "./versions.json";
 import versionReplacer from './src/remark/version-replacer';
 
 const latestVersionName = versions[0];
+const latestStableVersion = latestVersionName.replace(/^v/, "");
 
 const config: Config = {
   title: "Inspektor Gadget",
@@ -111,7 +112,9 @@ const config: Config = {
       "classic",
       {
         docs: {
-          remarkPlugins: [versionReplacer],
+          remarkPlugins: [
+            [versionReplacer, { stableVersion: latestStableVersion }],
+          ],
           lastVersion: "current",
           versions: {
             current: {
