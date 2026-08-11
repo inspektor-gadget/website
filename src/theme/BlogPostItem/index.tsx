@@ -23,13 +23,17 @@ export default function BlogPostItem({
 
   const isPage = post.isBlogPostPage;
   const isTOC = isPage && post.toc?.length > 0;
+  const image =
+    typeof post.frontMatter.image === "string"
+      ? post.frontMatter.image
+      : undefined;
 
   // Post preview as a card
   if (!isPage) {
     return (
       <Link to={post.metadata.permalink} className={styles.postLink}>
         <article className={clsx("card", className, styles.postCard)}>
-          <Image src={post.frontMatter.image} style={{ height: "200px" }} />
+          {image && <Image src={image} style={{ height: "200px" }} />}
 
           <header className={styles.postCardHeader}>
             <BlogPostItemHeaderTitle />
@@ -52,15 +56,17 @@ export default function BlogPostItem({
       <article className={clsx("container margin-vert--lg", className)}>
         <div className="row">
           <div className={"col col--8 col--offset-2"}>
-            <Image
-              src={post.frontMatter.image}
-              style={{
-                display: "block",
-                height: "400px",
-                borderRadius: "10px",
-                overflow: "hidden",
-              }}
-            />
+            {image && (
+              <Image
+                src={image}
+                style={{
+                  display: "block",
+                  height: "400px",
+                  borderRadius: "10px",
+                  overflow: "hidden",
+                }}
+              />
+            )}
             <BlogPostItemHeader />
             <BlogPostItemContent>{children}</BlogPostItemContent>
             <BlogPostItemFooter />

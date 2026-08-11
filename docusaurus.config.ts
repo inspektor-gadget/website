@@ -27,7 +27,31 @@ const config: Config = {
   themes: ['@docusaurus/theme-mermaid'],
 
   plugins: [
-    "docusaurus-lunr-search",
+    [
+      "docusaurus-lunr-search",
+      {
+        excludeRoutes: ["/use-cases/placeholder"],
+      },
+    ],
+    [
+      "@docusaurus/plugin-content-blog",
+      {
+        id: "use-cases",
+        path: "use-cases",
+        routeBasePath: "use-cases",
+        blogTitle: "Use Cases",
+        blogDescription:
+          "Examples of using Inspektor Gadget on Kubernetes clusters and Linux hosts.",
+        blogSidebarCount: 0,
+        postsPerPage: "ALL",
+        showReadingTime: true,
+        onUntruncatedBlogPosts: "ignore",
+        exclude: ["README.md"],
+        blogListComponent: "@theme/UseCasesListPage",
+        editUrl:
+          "https://github.com/inspektor-gadget/website/edit/main/use-cases/",
+      },
+    ],
     [
       "@docusaurus/plugin-client-redirects",
       {
@@ -191,6 +215,7 @@ const config: Config = {
           activeBaseRegex: `^\/$`,
         },
         { to: "/blog", label: "Blog", position: "left" },
+        { to: "/use-cases", label: "Use Cases", position: "left" },
         {
           type: "docSidebar",
           sidebarId: "mainSidebar",
