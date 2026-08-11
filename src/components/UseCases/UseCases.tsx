@@ -327,7 +327,7 @@ export function UseCases({ useCases }: UseCasesProps) {
                             )}
                           </span>
                           <span className={styles.gadget}>
-                            {useCase.gadget}
+                            View use case
                             <FontAwesomeIcon icon={faArrowRight} />
                           </span>
                         </span>

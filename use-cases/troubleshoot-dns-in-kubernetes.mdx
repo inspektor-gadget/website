@@ -1,0 +1,278 @@
+---
+title: Troubleshoot DNS in a Kubernetes cluster
+description: Follow DNS requests from application pods through CoreDNS to upstream servers and find failures, latency, and incorrect answers.
+slug: troubleshoot-dns-in-kubernetes
+date: 2026-08-11
+gadget: trace_dns
+icon: globe
+platforms: [kubernetes]
+signals: [events]
+integrations: [cli]
+domains: [networking, reliability]
+methods: [trace]
+tags: [Kubernetes, DNS, CoreDNS, Networking, Troubleshooting]
+---
+
+An application reports timeouts when calling another service. Its logs show
+only `no such host`, `SERVFAIL`, or a generic connection error. CoreDNS looks
+healthy, and the same name might resolve successfully from another pod or node.
+The difficult question is not simply whether DNS works, but **where a particular
+request stops working**.
+
+The `trace_dns` gadget gives you a live, cluster-wide view of DNS requests and
+responses. It traces events in the kernel and enriches them with Kubernetes
+context, so you can follow a lookup from an application pod to the `kube-dns`
+Service, into a CoreDNS pod, and on to an upstream DNS server without modifying
+the application or enabling verbose logging in CoreDNS.
+
+<!-- truncate -->
+
+## Why Kubernetes DNS is difficult to troubleshoot
+
+A DNS lookup in Kubernetes crosses several components:
+
+![A DNS request crossing Kubernetes nodes while Inspektor Gadget observes and enriches the traffic at each node.](/media/dns-observability-kubernetes.svg)
+
+Inspektor Gadget observes the DNS packets in the kernel on each node and
+enriches them with the pod, namespace, container, node, and Service involved.
+This turns packets from different parts of the path into one Kubernetes-aware
+view of the request.
+
+The exact path depends on the cluster's DNS policy, CNI, service routing,
+NodeLocal DNS configuration, CoreDNS plugins, and cache state. A failure can
+therefore have several very different causes:
+
+- The application requests the wrong or unexpectedly expanded name.
+- A NetworkPolicy, firewall, or node rule blocks DNS traffic.
+- The `kube-dns` Service does not route the request to CoreDNS.
+- CoreDNS rejects, drops, or delays the request.
+- An upstream DNS server is slow, unavailable, or returns an error.
+- The response succeeds but contains stale or unexpected addresses.
+
+Traditional packet capture can expose the packets, but correlating captures
+across nodes and mapping IP addresses back to pods and Services takes time.
+CoreDNS logs cover only the part of the path handled by CoreDNS. The DNS gadget
+combines packet-level visibility with pod, namespace, container, node, Service,
+query, response code, answer, and latency information.
+
+## What this workflow answers
+
+Use this workflow when you need to answer one or more of these questions:
+
+1. Which workloads are receiving unsuccessful DNS responses?
+2. Which queries are slow, and where is the delay introduced?
+3. Does a request leave the application pod and reach CoreDNS?
+4. Does CoreDNS forward an external lookup to the expected upstream server?
+5. Can each query be matched with a response?
+
+You can confirm its available fields
+and filters before starting:
+
+```bash
+kubectl gadget run trace_dns -h
+```
+
+## Try it: generate and trace DNS traffic
+
+Create a temporary pod that repeatedly looks up an in-cluster Service, an
+external domain, and a deliberately nonexistent domain:
+
+```bash
+kubectl create namespace dns-demo
+
+kubectl -n dns-demo run dns-client \
+  --image=busybox:1.36 \
+  --restart=Never \
+  --labels=app=dns-client \
+  --command -- sh -c '
+    while true; do
+      nslookup kubernetes.default.svc.cluster.local >/dev/null 2>&1
+      nslookup example.com >/dev/null 2>&1
+      nslookup does-not-exist.inspektor-gadget.invalid >/dev/null 2>&1
+      sleep 2
+    done'
+
+kubectl -n dns-demo wait \
+  --for=condition=Ready pod/dns-client \
+  --timeout=90s
+```
+
+Trace `A` record requests and responses from that pod:
+
+```bash
+kubectl gadget run trace_dns \
+  -n dns-demo \
+  -p dns-client \
+  --timeout 10 \
+  --filter "qtype==A" \
+  --fields k8s.podName,id,qr,qtype,name,rcode,addresses,latency_ns
+```
+
+A sample captured from a minikube cluster looks like this:
+
+```text
+K8S.PODNAME  ID    QR  QTYPE  NAME                                         RCODE      ADDRESSES                     LATENCY_NS
+dns-client   b8e1  Q   A      kubernetes.default.svc.cluster.local.                                                 0ns
+dns-client   b8e1  R   A      kubernetes.default.svc.cluster.local.       Success    10.96.0.1                      714.03µs
+dns-client   3d30  Q   A      example.com.                                                                          0ns
+dns-client   3d30  R   A      example.com.                                Success    104.20.23.154,104.20.24.154    411.53µs
+dns-client   8f50  Q   A      does-not-exist.inspektor-gadget.invalid.                                              0ns
+dns-client   8f50  R   A      does-not-exist.inspektor-gadget.invalid.    NameError                                 252.93µs
+```
+
+The matching `ID` values connect each query (`Q`) with its response (`R`).
+The first lookup returns the Kubernetes API Service address, the second returns
+external addresses, and the deliberately invalid name returns `NameError`.
+Addresses and latency values will differ between clusters and runs.
+
+Remove the test workload when you are finished:
+
+```bash
+kubectl delete namespace dns-demo
+```
+
+## Scenario 1: Find unsuccessful responses across the cluster
+
+Start broad when users report failures from multiple workloads or the affected
+namespace is not yet known:
+
+```bash
+kubectl gadget run trace_dns \
+  --all-namespaces \
+  --timeout 120 \
+  --fields k8s.node,src,dst,name,qtype,rcode \
+  --filter "qr==R,rcode!=Success"
+```
+
+This shows only DNS responses whose response code is not `Success`. Use the
+Kubernetes-enriched source and destination to identify the affected workload
+and the DNS component returning the error.
+
+The response code helps direct the next investigation:
+
+| Observation | Likely direction |
+| --- | --- |
+| `NameError` | Check spelling, search-domain expansion, and whether the record should exist. |
+| `ServerFailure` | Inspect CoreDNS configuration and the health of its upstream servers. |
+| `Refused` | Check whether CoreDNS or the upstream server permits the query. |
+| No response event | Trace the complete path to find where the query disappears. |
+
+An unsuccessful response does not always mean the DNS infrastructure is
+broken. For example, `NameError` is expected for a name that does not exist.
+Correlate the name and requesting workload before treating it as an incident.
+
+## Scenario 2: Find slow DNS responses
+
+An application timeout can be caused by DNS even when every query eventually
+succeeds. The following trace shows responses slower than 5 milliseconds:
+
+```bash
+kubectl gadget run trace_dns \
+  --all-namespaces \
+  --timeout 120 \
+  --fields k8s.node,src,dst,name,qtype,rcode,latency_ns \
+  --filter-expr "latency_ns_raw > 5 * 1000 * 1000"
+```
+
+`latency_ns_raw` is measured in nanoseconds, so the expression converts 5
+milliseconds using `1,000 microseconds per millisecond * 1,000 nanoseconds per
+microsecond`. Change the leading `5` to a threshold that reflects the
+application's latency budget. Compare the source and destination of slow
+events:
+
+- Slow responses from `kube-dns` to an application pod can indicate congestion
+  or delay anywhere behind the Service.
+- Slow responses from an upstream server to CoreDNS point toward the upstream
+  resolver or the network path to it.
+- Slow responses concentrated on one node suggest a node-specific networking,
+  conntrack, or NodeLocal DNS issue.
+
+## Scenario 3: Follow one lookup end to end
+
+After identifying an affected pod and name, narrow the trace to reconstruct the
+request flow. This example follows `example.com.` from `mypod` through CoreDNS:
+
+```bash
+kubectl gadget run trace_dns \
+  -n demo,kube-system \
+  --timeout 120 \
+  --filter "k8s.podName~mypod|coredns-.*" \
+  --filter "name==example.com." \
+  --fields k8s.node,k8s.namespace,k8s.podname,id,src,dst,qr,name,rcode,latency_ns,timestamp
+```
+
+Use a trailing dot in the filter because the DNS name in the packet is a fully
+qualified domain name. Read the events in timestamp order and use `ID` and `QR`
+to correlate each query (`Q`) with its response (`R`).
+
+A healthy external lookup normally produces these stages:
+
+1. The application pod sends a query to the `kube-dns` Service.
+2. The query reaches a CoreDNS pod.
+3. CoreDNS creates a new query ID and sends the request to an upstream server.
+4. The upstream server responds to CoreDNS.
+5. CoreDNS responds to the application pod.
+
+The last visible stage localizes the problem:
+
+| Last observed event | What to investigate |
+| --- | --- |
+| Query leaves the application but never appears at CoreDNS | Service routing, NetworkPolicy, CNI, node firewall, or NodeLocal DNS. |
+| Query reaches CoreDNS but is not forwarded upstream | CoreDNS configuration, plugins, policy, or an intentional cached response. |
+| Query leaves CoreDNS but no upstream response arrives | Upstream resolver health, routes, firewall rules, or packet loss. |
+| CoreDNS receives an upstream response but the pod does not | CoreDNS processing, Service routing, NetworkPolicy, or the return path. |
+
+CoreDNS may answer from its cache, so the absence of an upstream query is not
+by itself evidence of a failure. NodeLocal DNS also adds another caching and
+forwarding stage. Interpret the trace according to the DNS components enabled
+in your cluster.
+
+## Scenario 4: Check the upstream DNS server
+
+When failures affect external names, isolate traffic between CoreDNS and the
+configured upstream resolver. Replace the address below with the nameserver
+used by your nodes or CoreDNS:
+
+```bash
+kubectl gadget run trace_dns \
+  --all-namespaces \
+  --timeout 120 \
+  --fields src,dst,id,qr,name,nameserver,rcode,latency_ns \
+  --filter "nameserver.addr==192.0.2.53"
+```
+
+For each query ID, check for a matching response:
+
+- A query without a response suggests packet loss, a blocked path, or an
+  unavailable resolver.
+- A response with high latency identifies the resolver or its network path as
+  the source of delay.
+- `ServerFailure` or `Refused` indicates that the upstream server received the
+  query but could not or would not answer it.
+
+## From symptom to root cause
+
+The most effective investigation moves from broad evidence to a narrow trace:
+
+1. Find unsuccessful or slow responses across the cluster.
+2. Identify the affected namespace, pod, node, and DNS name.
+3. Trace that name through the application, CoreDNS, and upstream resolver.
+4. Correlate queries and responses by DNS ID.
+5. Validate the response code, latency, answer count, and returned addresses.
+
+This approach avoids changing the application, restarting workloads, or
+enabling cluster-wide verbose DNS logs. It also distinguishes a DNS failure
+from service routing, policy, upstream resolver, and endpoint problems that
+present the same symptoms to the application.
+
+## Summary
+
+In this guide, we explored how to troubleshoot DNS issues in Kubernetes using Inspektor Gadget. By following a structured approach, you can isolate the root cause of DNS failures without disrupting your applications. While this guide focused on getting events in terminal output, you can also export the data to OpenTelemetry, Prometheus, Logs, or other observability tools for further analysis and visualization.
+
+## Related documentation
+
+- [Trace DNS requests with Inspektor Gadget](https://inspektor-gadget.io/docs/latest/gadgets/trace_dns)
+- [Export metrics with the OpenTelemetry metrics operator](https://inspektor-gadget.io/docs/latest/reference/export-metrics)
+- [Export events with the OpenTelemetry logs exporter](https://inspektor-gadget.io/docs/latest/reference/export-logs)
+- [Configure the logs operator](https://inspektor-gadget.io/docs/latest/spec/operators/logs)
+- [Debugging DNS request flows in Kubernetes clusters](https://www.containerdays.io/blog/debugging-dns-request-flows-in-kubernetes-clusters/)

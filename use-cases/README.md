@@ -30,7 +30,6 @@ signals: [events]
 integrations: [cli, opentelemetry]
 domains: [networking, reliability]
 methods: [trace]
-image: /media/example-image.jpg
 tags: [Kubernetes, Networking, Troubleshooting]
 ---
 ```
@@ -38,8 +37,10 @@ tags: [Kubernetes, Networking, Troubleshooting]
 The `description` is displayed on the index card. Keep it short and focused on
 the problem being solved.
 
-The `image` must refer to a file under `static/`. Add new images to
-`static/media/` and reference them as `/media/<filename>`.
+Hero images are optional. Prefer diagrams within the article when they explain
+the workflow more clearly. If you add an `image`, it must refer to a file under
+`static/`; add new images to `static/media/` and reference them as
+`/media/<filename>`.
 
 ## Supported filter values
 
