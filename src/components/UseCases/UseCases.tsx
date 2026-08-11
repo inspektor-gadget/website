@@ -212,8 +212,10 @@ export function UseCases({ useCases }: UseCasesProps) {
           <span className={styles.eyebrow}>Use cases</span>
           <h1>Using Inspektor Gadget</h1>
           <p>
-            Examples of using Gadgets for system inspection on Kubernetes
-            clusters and Linux hosts.
+            Explore how to use Gadgets for real-time debugging, export their
+            signals to observability systems, or run them continuously for
+            later analysis. Use the filters to find examples by platform,
+            signal, integration, domain, or inspection method.
           </p>
         </div>
 
