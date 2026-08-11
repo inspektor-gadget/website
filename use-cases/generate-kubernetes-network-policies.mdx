@@ -1,0 +1,358 @@
+---
+title: Generate Kubernetes NetworkPolicies from observed traffic
+description: Diagnose a blocked pod-to-pod TCP connection, generate policy suggestions from observed traffic, and safely update the blocking NetworkPolicy.
+slug: generate-kubernetes-network-policies
+date: 2026-08-11
+gadget: advise_networkpolicy
+icon: file-shield
+platforms: [kubernetes]
+signals: [events]
+integrations: [cli]
+domains: [networking, security, reliability]
+methods: [trace, advise]
+tags: [Kubernetes, NetworkPolicy, Networking, Security, Troubleshooting]
+---
+
+A frontend pod cannot connect to an API pod. The Service and endpoints exist,
+both pods are healthy, and the application reports only a timeout. A restrictive
+Kubernetes `NetworkPolicy` is a likely cause, but manually identifying and
+maintaining every required pod-to-pod rule is slow and error-prone.
+
+Inspektor Gadget can connect diagnosis with remediation. First, `trace_tcp`
+shows the TCP lifecycle: the frontend attempts to connect, but the API pod
+never accepts the connection. Then, `advise_networkpolicy` separately observes
+a successful, representative request and generates Kubernetes `NetworkPolicy`
+suggestions from the traffic and workload labels it sees. You can review the
+suggestion, merge the required rule into the existing policy, and verify the
+complete connection lifecycle.
+
+This guide generates standard Kubernetes `NetworkPolicy` resources. You can
+generate Cilium `CiliumNetworkPolicy` resources instead by running
+`advise_networkpolicy` with `--policy-format cilium`.
+
+<!-- truncate -->
+
+## From blocked connection to minimum policy
+
+The workflow separates diagnosis from policy generation. First, observe the
+blocked connection without changing the workload. Then allow a controlled,
+representative request in a safe environment so the advisor can describe the
+required labels, direction, protocol, and port. Review that output before
+updating the policy managed in source control.
+
+![A frontend pod connection is blocked by a Kubernetes NetworkPolicy, then Inspektor Gadget traces the attempt, observes controlled traffic, and generates the minimum label-based rule.](/media/network-policy-generation-kubernetes.svg)
+
+## What this workflow answers
+
+Use this workflow when you need to answer:
+
+1. Is the application attempting to connect to the expected destination and
+   port?
+2. Does the client emit a `connect` event without a corresponding server-side
+   `accept` event?
+3. Which label selectors and ports describe the intended communication?
+4. How should an existing `NetworkPolicy` be updated without broadly allowing
+   traffic?
+
+This guide uses standard Kubernetes `networking.k8s.io/v1` policies. Your
+cluster must use a network plugin that enforces `NetworkPolicy`, and Inspektor
+Gadget must already be deployed.
+
+Confirm the available parameters before starting:
+
+```bash
+kubectl gadget run trace_tcp -h
+kubectl gadget run advise_networkpolicy -h
+```
+
+## Create two pods and a Service
+
+Create an isolated namespace with an nginx API pod, a Service, and a client pod:
+
+```bash
+kubectl create namespace network-policy-demo
+
+kubectl -n network-policy-demo run api \
+  --image=nginx:1.27-alpine \
+  --labels=app=api
+
+kubectl -n network-policy-demo expose pod api \
+  --name=api \
+  --port=80 \
+  --target-port=80
+
+kubectl -n network-policy-demo run frontend \
+  --image=busybox:1.36 \
+  --labels=app=frontend \
+  --command -- sleep infinity
+
+kubectl -n network-policy-demo wait \
+  --for=condition=Ready pod/api pod/frontend \
+  --timeout=90s
+```
+
+Save the Service address and confirm the request succeeds before introducing a
+policy:
+
+```bash
+API_IP=$(kubectl -n network-policy-demo get service api \
+  -o jsonpath='{.spec.clusterIP}')
+
+kubectl -n network-policy-demo exec frontend -- \
+  wget -T 3 -qO- "http://${API_IP}"
+```
+
+The command should print the nginx welcome page.
+
+## Reproduce a blocked connection
+
+Apply an ingress policy that selects the API pod but permits no incoming
+connections:
+
+```bash
+kubectl apply -f - <<'EOF'
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-ingress
+  namespace: network-policy-demo
+spec:
+  podSelector:
+    matchLabels:
+      app: api
+  policyTypes:
+    - Ingress
+  ingress: []
+EOF
+```
+
+Retrying the request now times out:
+
+```bash
+kubectl -n network-policy-demo exec frontend -- \
+  wget -T 3 -qO- "http://${API_IP}"
+```
+
+If the request still succeeds, the cluster network plugin is not enforcing
+this policy or another cluster-specific exception applies.
+
+## Trace the blocked TCP lifecycle
+
+In one terminal, trace the complete TCP lifecycle across the demo namespace:
+
+```bash
+kubectl gadget run trace_tcp \
+  -n network-policy-demo \
+  --timeout 20 \
+  --fields k8s.podName,src,dst,type,error
+```
+
+While the trace is running, retry the request from another terminal:
+
+```bash
+API_IP=$(kubectl -n network-policy-demo get service api \
+  -o jsonpath='{.spec.clusterIP}')
+
+kubectl -n network-policy-demo exec frontend -- \
+  wget -T 3 -qO- "http://${API_IP}"
+```
+
+A policy that silently drops the packets produces only the client-side
+connection event:
+
+```text
+K8S.PODNAME  SRC                                  DST                           TYPE     ERROR
+frontend     p/network-policy-demo/frontend:...  s/network-policy-demo/api:80  connect
+```
+
+The important evidence is:
+
+- `k8s.podName` identifies the workload making the connection.
+- `dst` confirms that it is targeting the expected Service and port.
+- `type=connect` shows that the application attempted to establish TCP.
+- No `accept` event appears for the API pod during the same trace, and the
+  application times out.
+
+`trace_tcp` can report errors such as `ECONNREFUSED`, but a silently dropped SYN
+does not necessarily produce `ETIMEDOUT` within a short trace. The application
+can abandon its request before the kernel's TCP timeout expires. Use the
+attempted destination, the application timeout, and the missing server-side
+`accept` event together; use `trace_tcpdrop` if you also need to investigate
+kernel-reported packet drops.
+
+An empty `error` value on the client `connect` event does not by itself prove
+that the request completed. Interpret the event as part of the lifecycle and
+look for the matching server-side `accept`.
+
+An immediate `ECONNREFUSED` means the destination was reachable but nothing
+accepted the connection on that port. That points toward the Service, its
+target port, or the server process rather than a silent policy drop.
+
+## Generate policy suggestions from observed traffic
+
+Network policy generation is based on **observed traffic**, not application
+intent. The required connection must therefore succeed while
+`advise_networkpolicy` is running.
+
+Use a staging environment or a controlled observation window. Do not remove a
+production isolation policy merely to collect traffic. For this disposable
+demo, start the advisor and write its final output to a file:
+
+```bash
+kubectl gadget run advise_networkpolicy \
+  -n network-policy-demo \
+  --timeout 20 \
+  > network-policy.generated.yaml
+```
+
+While it is running, use another terminal to remove the intentionally broken
+policy and make one representative request:
+
+```bash
+kubectl -n network-policy-demo delete networkpolicy api-ingress
+
+API_IP=$(kubectl -n network-policy-demo get service api \
+  -o jsonpath='{.spec.clusterIP}')
+
+kubectl -n network-policy-demo exec frontend -- \
+  wget -T 3 -qO- "http://${API_IP}" >/dev/null
+```
+
+When the advisor exits, inspect the generated resources:
+
+```bash
+cat network-policy.generated.yaml
+```
+
+The relevant API policy should contain an ingress rule equivalent to:
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-network
+  namespace: network-policy-demo
+spec:
+  podSelector:
+    matchLabels:
+      app: api
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: frontend
+      ports:
+        - port: 80
+          protocol: TCP
+  policyTypes:
+    - Ingress
+    - Egress
+```
+
+The generated file can contain policies for both pods and other traffic that
+occurred during the observation window. Treat it as a suggestion:
+
+- Confirm that every observed connection is legitimate.
+- Remove unrelated or one-time traffic.
+- Check whether probes, metrics, DNS, control-plane traffic, and external
+  dependencies were exercised during the capture.
+- Prefer stable workload labels over generated pod names or IP addresses.
+- Merge rules into policies already managed in source control instead of
+  applying the entire generated file blindly.
+
+## Update the existing policy
+
+Merge only the required ingress rule into the original `api-ingress` policy:
+
+```bash
+kubectl apply -f - <<'EOF'
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-ingress
+  namespace: network-policy-demo
+spec:
+  podSelector:
+    matchLabels:
+      app: api
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: frontend
+      ports:
+        - protocol: TCP
+          port: 80
+EOF
+```
+
+This keeps the API pod isolated while allowing only pods labeled
+`app=frontend` in the same namespace to connect to TCP port 80.
+
+For communication across namespaces, the generated rule also includes a
+`namespaceSelector`. Review both selectors: a `podSelector` nested beside a
+`namespaceSelector` matches pods satisfying both conditions, whereas separate
+`from` entries are additive and can allow a much broader set of sources.
+
+## Verify the updated policy
+
+Repeat the request:
+
+```bash
+API_IP=$(kubectl -n network-policy-demo get service api \
+  -o jsonpath='{.spec.clusterIP}')
+
+kubectl -n network-policy-demo exec frontend -- \
+  wget -T 3 -qO- "http://${API_IP}"
+```
+
+The nginx page should be returned. A final TCP trace can confirm that the
+client connects and the API pod accepts the connection:
+
+```bash
+kubectl gadget run trace_tcp \
+  -n network-policy-demo \
+  --timeout 20 \
+  --fields k8s.podName,src,dst,type,error
+```
+
+Run the request again while the trace is active. A successful lifecycle looks
+similar to:
+
+```text
+K8S.PODNAME  SRC                                  DST                                  TYPE     ERROR
+api          p/network-policy-demo/api:80         p/network-policy-demo/frontend:...   accept
+frontend     p/network-policy-demo/frontend:...  s/network-policy-demo/api:80         connect
+frontend     p/network-policy-demo/frontend:...  s/network-policy-demo/api:80         close
+api          p/network-policy-demo/api:80         p/network-policy-demo/frontend:...   close
+```
+
+The `frontend` `connect` now has a matching `api` `accept`, followed by `close`
+events from both sides when the request finishes. That complete lifecycle
+confirms that the reviewed policy permits the intended connection.
+
+## Limitations
+
+`advise_networkpolicy` cannot infer communication that did not occur, decide
+whether observed traffic was authorized, or guarantee that a short capture
+covered every application path. It also ignores several non-identity labels,
+including rollout and topology labels, when creating selectors.
+
+Generated policies should therefore be reviewed, tested in a non-production
+environment, stored in source control, and rolled out with the same safeguards
+as manually authored security policy.
+
+Remove the demo resources and generated file when finished:
+
+```bash
+kubectl delete namespace network-policy-demo
+rm network-policy.generated.yaml
+```
+
+## Related documentation
+
+- [Trace TCP connections with Inspektor Gadget](https://inspektor-gadget.io/docs/latest/gadgets/trace_tcp)
+- [Generate NetworkPolicy suggestions with Inspektor Gadget](https://inspektor-gadget.io/docs/latest/gadgets/advise_networkpolicy)
+- [Kubernetes NetworkPolicy documentation](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
