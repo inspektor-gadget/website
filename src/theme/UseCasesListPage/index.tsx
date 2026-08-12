@@ -6,6 +6,7 @@ import { UseCases } from "../../components/UseCases/UseCases";
 
 interface UseCaseFrontMatter {
   placeholder?: boolean;
+  order: number;
   gadget: string;
   icon:
     | "globe"
@@ -32,6 +33,7 @@ export default function UseCasesListPage({
         UseCaseFrontMatter;
 
       return {
+        order: frontMatter.order,
         title: content.metadata.title,
         description: content.metadata.description,
         permalink: content.metadata.permalink,
@@ -43,7 +45,8 @@ export default function UseCasesListPage({
         domains: frontMatter.domains,
         methods: frontMatter.methods,
       };
-    });
+    })
+    .sort((a, b) => a.order - b.order);
 
   return (
     <Layout

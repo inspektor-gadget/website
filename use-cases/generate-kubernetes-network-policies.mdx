@@ -2,7 +2,7 @@
 title: Generate Kubernetes NetworkPolicies from observed traffic
 description: Diagnose a blocked pod-to-pod TCP connection, generate policy suggestions from observed traffic, and safely update the blocking NetworkPolicy.
 slug: generate-kubernetes-network-policies
-date: 2026-08-11
+order: 3
 gadget: advise_networkpolicy
 icon: file-shield
 platforms: [kubernetes]
@@ -26,15 +26,17 @@ suggestions from the traffic and workload labels it sees. You can review the
 suggestion, merge the required rule into the existing policy, and verify the
 complete connection lifecycle.
 
+:::tip
 This guide generates standard Kubernetes `NetworkPolicy` resources. You can
 generate Cilium `CiliumNetworkPolicy` resources instead by running
 `advise_networkpolicy` with `--policy-format cilium`.
+:::
 
 <!-- truncate -->
 
 ## From blocked connection to minimum policy
 
-The workflow separates diagnosis from policy generation. First, observe the
+The scenario separates diagnosis from policy generation. First, observe the
 blocked connection without changing the workload. Then allow a controlled,
 representative request in a safe environment so the advisor can describe the
 required labels, direction, protocol, and port. Review that output before
@@ -42,9 +44,9 @@ updating the policy managed in source control.
 
 ![A frontend pod connection is blocked by a Kubernetes NetworkPolicy, then Inspektor Gadget traces the attempt, observes controlled traffic, and generates the minimum label-based rule.](/media/network-policy-generation-kubernetes.svg)
 
-## What this workflow answers
+## What this scenario answers
 
-Use this workflow when you need to answer:
+Use this scenario when you need to answer:
 
 1. Is the application attempting to connect to the expected destination and
    port?

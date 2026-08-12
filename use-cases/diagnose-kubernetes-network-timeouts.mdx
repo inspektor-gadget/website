@@ -2,7 +2,7 @@
 title: Diagnose intermittent Kubernetes network timeouts
 description: Capture a failing connection, distinguish resets from packet loss and latency, and identify the affected pod, node, or endpoint.
 slug: diagnose-kubernetes-network-timeouts
-date: 2026-08-12
+order: 4
 gadget: tcpdump
 icon: route
 platforms: [kubernetes]
@@ -19,9 +19,8 @@ never sent a packet, the database rejected the connection, or packets
 disappeared between them. The failure is too brief to justify restarting a pod
 with extra tools, and the application image does not contain `tcpdump`.
 
-This workflow captures the affected pod's traffic from outside the container,
-then uses the TCP packet sequence and Kubernetes context to localize the
-failure. The goal is not to collect every packet in the cluster. It is to turn
+This scenario captures the affected pod's traffic from outside the container to
+localize the failure. The goal is not to collect every packet in the cluster. It is to turn
 one vague timeout into evidence that points to the client pod, its node, the
 network path, or the database endpoint.
 
@@ -29,9 +28,9 @@ network path, or the database endpoint.
 
 ![A targeted packet capture turns a backend timeout into three evidence-based investigation branches, then compares Kubernetes pod, node, and endpoint context.](/media/kubernetes-network-timeout-investigation.svg)
 
-## What this workflow answers
+## What this scenario answers
 
-Use this workflow when logs show connection timeouts or intermittent latency
+Use this scenario when logs show connection timeouts or intermittent latency
 and you need to answer:
 
 1. Did the client send a TCP SYN to the expected address and port?
@@ -71,18 +70,6 @@ point in a different direction from failures seen across every replica.
 
 ## Capture only the relevant traffic
 
-Despite its name, the tcpdump gadget is not limited to TCP. It can capture any
-network traffic matched by the packet filter, including UDP and ICMP. This
-workflow intentionally selects TCP because it investigates a PostgreSQL
-connection timeout.
-
-Gadget images are released with explicit version tags. Check the server version
-deployed in the cluster and use its corresponding gadget tag:
-
-```bash
-kubectl gadget version
-```
-
 Capture PostgreSQL traffic from the affected pod and write it to a pcap-ng
 file:
 
@@ -100,6 +87,13 @@ Reproduce the failing request while the command is running. Set `--timeout`
 long enough to include at least one application timeout, but keep the capture
 bounded.
 
+:::info
+Despite its name, the tcpdump gadget is not limited to TCP. It can capture any
+network traffic matched by the packet filter, including UDP and ICMP. This
+scenario intentionally selects TCP because it investigates a PostgreSQL
+connection timeout.
+:::
+
 The packet filter keeps unrelated traffic out of the file. If the database has
 multiple addresses or port `5432` is also used by an unrelated dependency,
 narrow it further:
@@ -114,17 +108,18 @@ kubectl gadget run tcpdump \
   > db-timeout.pcapng
 ```
 
-Treat packet captures as sensitive operational data. Limit the duration and
-scope, store the file securely, and remove it when the investigation is
-finished. Payloads can contain application data when the protocol is not
-encrypted.
-
 ## Inspect the connection sequence
 
-Open the file in Wireshark or inspect it from the command line:
+Inspect it from the command line:
 
 ```bash
-tcpdump -nn -tttt -r db-timeout.pcapng
+tcpdump -nn -r db-timeout.pcapng
+```
+
+or open it in Wireshark:
+
+```bash
+wireshark -r db-timeout.pcapng
 ```
 
 Focus first on the TCP handshake and retransmissions rather than the
@@ -184,8 +179,8 @@ back to workloads during the incident.
 
 ## Capture live from Wireshark
 
-For an intermittent issue that is easier to recognize visually, the Wireshark
-extcap integration can expose the Kubernetes cluster as a capture source. Set
+For an intermittent issue that is easier to recognize visually, the [Wireshark
+extcap integration](https://github.com/flyth/ig-extcap) can expose the Kubernetes cluster as a capture source. Set
 the namespace, pod, and packet filter before starting, then reproduce the
 request and watch the handshake and retransmissions live.
 
