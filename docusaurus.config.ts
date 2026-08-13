@@ -47,6 +47,9 @@ const config: Config = {
         showReadingTime: true,
         onUntruncatedBlogPosts: "ignore",
         exclude: ["README.md"],
+        remarkPlugins: [
+          [versionReplacer, { stableVersion: latestStableVersion }],
+        ],
         blogListComponent: "@theme/UseCasesListPage",
         editUrl:
           "https://github.com/inspektor-gadget/website/edit/main/use-cases/",

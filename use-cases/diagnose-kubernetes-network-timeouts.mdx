@@ -1,0 +1,229 @@
+---
+title: Diagnose intermittent Kubernetes network timeouts
+description: Capture a failing connection, distinguish resets from packet loss and latency, and identify the affected pod, node, or endpoint.
+slug: diagnose-kubernetes-network-timeouts
+order: 4
+gadget: tcpdump
+icon: route
+platforms: [kubernetes]
+signals: [events]
+integrations: [cli]
+domains: [networking, reliability]
+methods: [trace]
+tags: [Kubernetes, Networking, TCP, Packet capture, Wireshark, Troubleshooting]
+---
+
+A backend intermittently times out while connecting to PostgreSQL. Application
+logs confirm that requests fail, but they cannot tell you whether the client
+never sent a packet, the database rejected the connection, or packets
+disappeared between them. The failure is too brief to justify restarting a pod
+with extra tools, and the application image does not contain `tcpdump`.
+
+This scenario captures the affected pod's traffic from outside the container to
+localize the failure. The goal is not to collect every packet in the cluster. It is to turn
+one vague timeout into evidence that points to the client pod, its node, the
+network path, or the database endpoint.
+
+<!-- truncate -->
+
+![A targeted packet capture turns a backend timeout into three evidence-based investigation branches, then compares Kubernetes pod, node, and endpoint context.](/media/kubernetes-network-timeout-investigation.svg)
+
+## What this scenario answers
+
+Use this scenario when logs show connection timeouts or intermittent latency
+and you need to answer:
+
+1. Did the client send a TCP SYN to the expected address and port?
+2. Did the server answer with a SYN-ACK, a reset, or nothing?
+3. Are packets being retransmitted or acknowledged slowly?
+4. Does the failure follow one pod, one node, or one destination?
+5. Which Kubernetes workload produced each captured packet?
+
+Packet capture is most useful after logs and metrics have narrowed the problem
+to a connection, workload, or time window. Start with the smallest practical
+scope and expand only when the evidence requires it.
+
+## Reproduce one failing connection
+
+First, record the affected namespace, pod, destination, port, and approximate
+failure time. If the problem can be reproduced safely, run one request while
+the capture is active. For example, a backend connecting to PostgreSQL might
+report:
+
+```text
+database connection timed out after 5s
+pod: production/backend-service-7d9c8f
+destination: postgres.production.svc:5432
+```
+
+Confirm the exact pod name before starting:
+
+```bash
+kubectl get pods \
+  --namespace production \
+  --selector app=backend-service \
+  -o wide
+```
+
+The node column becomes important later: failures isolated to pods on one node
+point in a different direction from failures seen across every replica.
+
+## Capture only the relevant traffic
+
+Capture PostgreSQL traffic from the affected pod and write it to a pcap-ng
+file:
+
+```bash
+kubectl gadget run tcpdump \
+  --namespace production \
+  --podname backend-service-7d9c8f \
+  --pf "tcp port 5432" \
+  --timeout 30 \
+  -o pcap-ng \
+  > db-timeout.pcapng
+```
+
+Reproduce the failing request while the command is running. Set `--timeout`
+long enough to include at least one application timeout, but keep the capture
+bounded.
+
+:::info
+Despite its name, the tcpdump gadget is not limited to TCP. It can capture any
+network traffic matched by the packet filter, including UDP and ICMP. This
+scenario intentionally selects TCP because it investigates a PostgreSQL
+connection timeout.
+:::
+
+The packet filter keeps unrelated traffic out of the file. If the database has
+multiple addresses or port `5432` is also used by an unrelated dependency,
+narrow it further:
+
+```bash
+kubectl gadget run tcpdump \
+  --namespace production \
+  --podname backend-service-7d9c8f \
+  --pf "tcp port 5432 and host 10.20.30.40" \
+  --timeout 30 \
+  -o pcap-ng \
+  > db-timeout.pcapng
+```
+
+## Inspect the connection sequence
+
+Inspect it from the command line:
+
+```bash
+tcpdump -nn -r db-timeout.pcapng
+```
+
+or open it in Wireshark:
+
+```bash
+wireshark -r db-timeout.pcapng
+```
+
+Focus first on the TCP handshake and retransmissions rather than the
+application payload. Wireshark display filters can isolate the most useful
+signals:
+
+```text
+tcp.flags.syn == 1
+tcp.flags.reset == 1
+tcp.analysis.retransmission
+tcp.analysis.lost_segment
+tcp.analysis.ack_rtt
+```
+
+The packet sequence separates several problems that all look like a timeout in
+application logs:
+
+| Packet evidence | Likely direction |
+| --- | --- |
+| No SYN from the client | The request did not reach the network stack; inspect application connection pooling, name resolution, or local resource pressure. |
+| Repeated SYNs with no reply | Investigate NetworkPolicy, firewall rules, routing, packet loss, an unreachable endpoint, or an overloaded server that is not answering. |
+| Immediate RST from the destination | The destination is reachable, but nothing is accepting the connection on that address and port, or an intermediary is actively rejecting it. |
+| SYN, SYN-ACK, ACK completes, then the connection stalls | The network path is established; inspect server processing, connection limits, TLS negotiation, or application protocol behavior. |
+| Retransmissions after data is sent | Investigate packet loss, MTU problems, congestion, or an unhealthy path between the client and server. |
+| Large SYN-to-SYN-ACK or ACK round-trip times | Compare nodes and endpoints to determine whether latency is path-specific or systemic. |
+
+An absent reply does not identify the dropping component by itself. It narrows
+the next step: compare captures at another point in the path or compare
+affected and healthy replicas.
+
+## Determine whether the failure follows a pod or node
+
+Repeat the same filtered capture for a healthy backend replica and make an
+equivalent request. Compare:
+
+- Destination IP and port.
+- The node hosting each backend pod.
+- SYN-to-SYN-ACK timing.
+- Reset and retransmission counts.
+- Whether both pods select the same database endpoint.
+
+The comparison helps choose the next investigation:
+
+| Pattern | What to investigate next |
+| --- | --- |
+| One pod fails, but another pod on the same node succeeds | Pod-specific namespace, sidecar, policy, connection pool, or endpoint selection. |
+| Every affected pod is on one node | Node routes, CNI state, conntrack pressure, MTU, firewall rules, or the node's physical network path. |
+| Failures follow one database IP | That endpoint's health, listener, connection limits, or route. |
+| All replicas and endpoints show the same delay | Shared network infrastructure, database capacity, or a dependency common to every path. |
+| Only cross-node traffic fails | CNI overlay, encapsulation, MTU, routing, or inter-node firewall configuration. |
+
+When the file is opened with the
+[Inspektor Gadget Wireshark dissector and extcap integration](https://github.com/flyth/ig-extcap),
+packets include the namespace, pod, container, and node context captured by
+Inspektor Gadget. This avoids manually mapping short-lived pod IP addresses
+back to workloads during the incident.
+
+## Capture live from Wireshark
+
+For an intermittent issue that is easier to recognize visually, the [Wireshark
+extcap integration](https://github.com/flyth/ig-extcap) can expose the Kubernetes cluster as a capture source. Set
+the namespace, pod, and packet filter before starting, then reproduce the
+request and watch the handshake and retransmissions live.
+
+Use the same investigation discipline as with a file capture:
+
+1. Start with one workload and one dependency port.
+2. Capture through at least one application timeout.
+3. Save the packets that contain the failure.
+4. Compare them with a healthy request.
+5. Stop capturing once the evidence identifies the next component to inspect.
+
+Live capture changes the interface, not the troubleshooting method. The useful
+result is still a packet sequence tied to the Kubernetes workload and node that
+produced it.
+
+## From timeout to next action
+
+A productive investigation ends with a narrower, testable statement:
+
+- "The backend sends SYN packets, but no response returns when it runs on
+  `worker-2`."
+- "The database endpoint at `10.20.30.40:5432` immediately resets connections
+  from every backend replica."
+- "The handshake succeeds, but data packets are retransmitted only across
+  nodes with different MTUs."
+- "The TCP connection is healthy; the five-second delay occurs after the
+  handshake and should be investigated in the database or application
+  protocol."
+
+These conclusions turn a generic application timeout into the next concrete
+check. They also prevent changing application images, restarting production
+pods, or broadening access merely to install a packet-capture tool.
+
+Remove the local capture after the investigation according to your
+organization's data-handling policy:
+
+```bash
+rm db-timeout.pcapng
+```
+
+## Related documentation
+
+- [Debugging Kubernetes network issues with the tcpdump gadget](https://inspektor-gadget.io/blog/2025/12/tcpdump)
+- [Capture packets with the tcpdump gadget](https://inspektor-gadget.io/docs/latest/gadgets/tcpdump)
+- [Run gadgets with kubectl gadget](https://inspektor-gadget.io/docs/latest/reference/run)
+- [Wireshark display filter reference](https://www.wireshark.org/docs/dfref/t/tcp.html)

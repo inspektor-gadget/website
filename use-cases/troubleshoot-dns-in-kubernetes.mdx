@@ -2,7 +2,7 @@
 title: Troubleshoot DNS in a Kubernetes cluster
 description: Follow DNS requests from application pods through CoreDNS to upstream servers and find failures, latency, and incorrect answers.
 slug: troubleshoot-dns-in-kubernetes
-date: 2026-08-11
+order: 1
 gadget: trace_dns
 icon: globe
 platforms: [kubernetes]
@@ -73,6 +73,10 @@ kubectl gadget run trace_dns -h
 ```
 
 ## Try it: generate and trace DNS traffic
+
+:::info
+You can skip this section if you want to trace DNS traffic from an existing application pod
+:::
 
 Create a temporary pod that repeatedly looks up an in-cluster Service, an
 external domain, and a deliberately nonexistent domain:

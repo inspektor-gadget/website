@@ -1,0 +1,272 @@
+---
+title: Monitor TCP round-trip time across Kubernetes nodes
+description: Deploy continuous kernel-level TCP RTT histograms with Helm, scrape every node with Prometheus, and identify latency regressions.
+slug: monitor-tcp-round-trip-time
+order: 2
+gadget: profile_tcprtt
+icon: route
+platforms: [kubernetes]
+signals: [metrics]
+integrations: [prometheus, opentelemetry]
+domains: [networking, performance, reliability]
+methods: [profile]
+tags: [Kubernetes, Networking, TCP, Latency, Metrics, Prometheus, Helm, OpenTelemetry]
+---
+
+Users report that requests become slow for several minutes and then recover.
+Application latency metrics confirm the symptom, but they do not show whether
+the delay came from application processing or the network path. An on-demand
+trace is unlikely to catch the next occurrence.
+
+This scenario continuously measures the smoothed round-trip time maintained by
+the Linux kernel for established TCP connections. Inspektor Gadget runs
+`profile_tcprtt` on every Kubernetes node, exposes its histogram as Prometheus
+metrics, and lets you compare latency over time and across workers.
+
+<!-- truncate -->
+
+![Inspektor Gadget profiles established TCP connections on every worker node and exposes RTT histograms for Prometheus dashboards and alerts.](/media/tcp-rtt-metrics-kubernetes.svg)
+
+## What this scenario answers
+
+Use this scenario when you need to answer:
+
+1. Did TCP round-trip time increase during the application latency incident?
+2. Is elevated RTT isolated to one worker node?
+3. Did the latency distribution change after a deployment or infrastructure
+   event?
+4. Is the network healthy enough to move the investigation into the
+   application or dependency?
+
+`profile_tcprtt` reads the smoothed RTT already maintained by the kernel for
+established TCP sockets. It does not measure DNS resolution, the initial TCP
+handshake, TLS negotiation, server processing, or complete request latency.
+Use it to confirm or reject network RTT as one component of a larger latency
+budget.
+
+## Configure continuous RTT metrics
+
+Create `values.yaml`:
+
+```yaml
+config:
+  operator:
+    otel-metrics:
+      # Expose a Prometheus-compatible /metrics endpoint from each gadget pod.
+      otel-metrics-listen: true
+      otel-metrics-listen-address: "0.0.0.0:2224"
+  gadgetConfigMaps:
+    - name: tcp-rtt-metrics
+      imageName: ghcr.io/inspektor-gadget/gadget/profile_tcprtt:%IG_TAG%
+      timeout: 0
+      paramValues:
+        # Enable the metric collection.
+        operator.oci.annotate: "tcprtt:metrics.collect=true"
+        # Export tcprtt under the unique OpenTelemetry scope "tcp-rtt".
+        operator.otel-metrics.otel-metrics-name: "tcprtt:tcp-rtt"
+```
+
+The two parts serve different purposes:
+
+- `otel-metrics-listen` exposes a Prometheus-compatible `/metrics` endpoint
+  from every Inspektor Gadget daemon pod.
+- `gadgetConfigMaps` creates a persistent `profile_tcprtt` instance. The
+  datasource annotation enables metric collection, and `tcp-rtt` becomes its
+  OpenTelemetry instrumentation scope.
+
+The gadget has no timeout because this is continuous monitoring rather than an
+interactive troubleshooting trace.
+
+## Deploy Inspektor Gadget with Helm
+
+Install or update the release:
+
+```bash
+helm upgrade --install gadget \
+  oci://ghcr.io/inspektor-gadget/inspektor-gadget/charts/gadget \
+  --version=%IG_CHART% \
+  --namespace gadget \
+  --create-namespace \
+  --values values.yaml
+```
+
+Wait for one ready daemon pod per Linux node:
+
+```bash
+kubectl rollout status daemonset/gadget \
+  --namespace gadget \
+  --timeout 2m
+
+kubectl get pods \
+  --namespace gadget \
+  --selector k8s-app=gadget \
+  -o wide
+```
+
+Confirm that Helm created the persistent gadget instance:
+
+```bash
+kubectl get configmap \
+  --namespace gadget \
+  --selector type=gadget-instance,name=tcp-rtt-metrics
+```
+
+## Verify the metrics before configuring Prometheus
+
+Port-forward one daemon pod:
+
+```bash
+POD_NAME=$(kubectl get pods \
+  --namespace gadget \
+  --selector k8s-app=gadget \
+  -o jsonpath='{.items[0].metadata.name}')
+
+kubectl port-forward \
+  --namespace gadget \
+  "pod/${POD_NAME}" \
+  2224:2224
+```
+
+In another terminal, confirm that the RTT histogram is present:
+
+```bash
+curl --silent http://127.0.0.1:2224/metrics \
+  | grep 'otel_scope_name="tcp-rtt"'
+```
+
+The output contains a Prometheus histogram:
+
+```text
+latency_s_bucket{otel_scope_name="tcp-rtt",...,le="16"} 43
+latency_s_bucket{otel_scope_name="tcp-rtt",...,le="32"} 412
+latency_s_bucket{otel_scope_name="tcp-rtt",...,le="+Inf"} 4845
+latency_s_sum{otel_scope_name="tcp-rtt",...} 3.0304272e+07
+latency_s_count{otel_scope_name="tcp-rtt",...} 4845
+```
+
+Each daemon endpoint contains measurements from its own node. A port-forward
+checks only one endpoint; production monitoring must scrape every pod in the
+DaemonSet.
+
+## Scrape every node with a PodMonitor
+
+You can use the Prometheus Operator to scrape every gadget pod with a `PodMonitor`:
+
+```yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: gadget-tcp-rtt
+  namespace: monitoring
+  annotations:
+    kubernetes.io/description: >-
+      Scrapes the undeclared Inspektor Gadget metrics port by rewriting each
+      selected pod IP to port 2224.
+spec:
+  labelLimit: 63
+  labelNameLengthLimit: 511
+  labelValueLengthLimit: 1023
+  namespaceSelector:
+    matchNames:
+      - gadget
+  selector:
+    matchLabels:
+      k8s-app: gadget
+  podMetricsEndpoints:
+    - path: /metrics
+      relabelings:
+        - sourceLabels:
+            - __meta_kubernetes_pod_label_k8s_app
+          action: keep
+          regex: gadget
+        - sourceLabels:
+            - __address__
+          action: replace
+          regex: '([^:]+)(?::\d+)?'
+          replacement: '$1:2224'
+          targetLabel: __address__
+        - sourceLabels:
+            - __meta_kubernetes_pod_node_name
+          targetLabel: instance
+      metricRelabelings:
+        - action: labeldrop
+          regex: (pod|container|namespace)
+        - targetLabel: job
+          replacement: inspektor-gadget
+```
+
+The target relabeling rules keep only gadget pods, replace the discovered port
+with `2224`, and preserve the Kubernetes worker name as `instance`. The metric
+relabeling rules remove redundant pod-level labels and set a stable job name.
+Keeping node identity is essential: aggregating every daemon into one unlabeled
+histogram would hide a node-specific latency regression.
+
+Add any labels required by your Prometheus resource selector, then apply the
+resource according to the configuration-management scenario used for your
+cluster:
+
+```bash
+kubectl apply -f gadget-tcp-rtt-podmonitor.yaml
+```
+
+If your Prometheus installation does not use the Prometheus Operator, configure
+equivalent Kubernetes pod discovery for `k8s-app=gadget`, port `2224`, and path
+`/metrics`, and relabel the pod's node name into the `instance` label.
+
+## Compare p95 RTT by node
+
+Use `rate()` because histogram buckets are cumulative counters, then calculate
+the quantile independently for each node:
+
+```promql
+histogram_quantile(
+  0.95,
+  sum by (instance, le) (
+    rate(latency_s_bucket{otel_scope_name="tcp-rtt"}[5m])
+  )
+) / 1000
+```
+
+If your selected gadget release reports buckets in microseconds, dividing by
+`1000` converts the result to milliseconds. Plot the query as a time series
+with one line per node.
+
+Interpret the result together with application latency:
+
+| Observation | Investigation direction |
+| --- | --- |
+| Application latency rises while TCP RTT remains stable | Focus on application processing, dependency capacity, connection pools, TLS, or request queuing. |
+| TCP RTT rises on every node | Investigate a shared network path, remote dependency, cluster egress, or infrastructure event. |
+| TCP RTT rises on one node | Inspect that worker's CNI state, routes, packet loss, congestion, conntrack pressure, and physical network path. |
+| RTT rises only after a workload moves nodes | Compare the old and new node paths and placement constraints. |
+| The histogram develops a long tail but the median stays stable | Investigate intermittent loss, retransmissions, congestion, or a subset of destinations. |
+
+## Alert on a sustained regression
+
+Choose a threshold from the application's latency budget and observed baseline,
+not from a generic network target. For example, the following expression is
+true when a node's five-minute p95 exceeds 10 milliseconds:
+
+```promql
+histogram_quantile(
+  0.95,
+  sum by (instance, le) (
+    rate(latency_s_bucket{otel_scope_name="tcp-rtt"}[5m])
+  )
+) > 10000
+```
+
+Require the condition to remain true for several evaluation periods before
+paging. A short spike can be useful on a dashboard without representing a
+user-visible incident.
+
+When an alert fires, use the `instance` label to narrow an on-demand investigation
+with retransmission, drop, or packet-capture gadgets. Continuous RTT metrics
+show **when and where** latency changed; targeted traces explain **why**.
+
+## Related documentation
+
+- [Profile TCP round-trip time](https://inspektor-gadget.io/docs/latest/gadgets/profile_tcprtt)
+- [Export metrics from gadgets](https://inspektor-gadget.io/docs/latest/reference/export-metrics)
+- [Install Inspektor Gadget on Kubernetes](https://inspektor-gadget.io/docs/latest/reference/install-kubernetes)
+- [Prometheus histogram query guidance](https://prometheus.io/docs/practices/histograms/)

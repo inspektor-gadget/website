@@ -20,9 +20,9 @@ Start with this front matter:
 ```yaml
 ---
 title: Debug an example problem
-description: Explain the user-visible problem and the outcome this workflow provides.
+description: Explain the user-visible problem and the outcome this scenario provides.
 slug: debug-example-problem
-date: 2026-08-10
+order: 1
 gadget: example_gadget
 icon: globe
 platforms: [kubernetes, linux]
@@ -35,10 +35,11 @@ tags: [Kubernetes, Networking, Troubleshooting]
 ```
 
 The `description` is displayed on the index card. Keep it short and focused on
-the problem being solved.
+the problem being solved. The `order` field controls the card's position on the
+use-case index; lower numbers appear first.
 
 Hero images are optional. Prefer diagrams within the article when they explain
-the workflow more clearly. If you add an `image`, it must refer to a file under
+the scenario more clearly. If you add an `image`, it must refer to a file under
 `static/`; add new images to `static/media/` and reference them as
 `/media/<filename>`.
 
@@ -65,7 +66,7 @@ with AND.
 Structure the article around the user's goal rather than the Gadget reference:
 
 1. Describe the symptom and why existing signals are insufficient.
-2. Explain when the workflow is appropriate.
+2. Explain when the scenario is appropriate.
 3. Provide the minimal commands needed to investigate.
 4. Explain how to interpret the output and decide what to do next.
 5. Link to detailed Gadget documentation as supporting reference.
@@ -80,7 +81,7 @@ Explain the problem and how Inspektor Gadget helps.
 
 <!-- truncate -->
 
-## When to use this workflow
+## When to use this scenario
 
 Describe the relevant symptoms.
 
