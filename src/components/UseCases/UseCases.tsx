@@ -11,10 +11,14 @@ import {
   faSearch,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
+import { config } from "@fortawesome/fontawesome-svg-core";
+import "@fortawesome/fontawesome-svg-core/styles.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import clsx from "clsx";
 
 import styles from "./UseCases.module.css";
+
+config.autoAddCss = false;
 
 const useCaseIcons = {
   globe: faGlobe,
