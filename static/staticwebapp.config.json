@@ -1,8 +1,9 @@
 {
-  "globalHeaders": {
-    "Content-Type": "text/html; charset=UTF-8",
-    "Permissions-Policy": "geolocation=(), microphone=(), camera=()",
-    "X-Frame-Options": "SAMEORIGIN",
-    "X-Permitted-Cross-Domain-Policies": "none"
-  }
+	"globalHeaders": {
+		"Content-Type": "text/html; charset=UTF-8",
+		"Content-Security-Policy": "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+		"Permissions-Policy": "geolocation=(), microphone=(), camera=()",
+		"X-Frame-Options": "SAMEORIGIN",
+		"X-Permitted-Cross-Domain-Policies": "none"
+	}
 }
