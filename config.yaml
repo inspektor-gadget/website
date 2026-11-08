@@ -13,12 +13,12 @@ params:
       branch: v0.58.0
       dir: docs
     - repo: https://github.com/inspektor-gadget/inspektor-gadget.git
-      name: v0.56.0
-      branch: v0.56.0
+      name: v0.57.0
+      branch: v0.57.0
       dir: docs
     - repo: https://github.com/inspektor-gadget/inspektor-gadget.git
-      name: v0.55.0
-      branch: v0.55.0
+      name: v0.56.0
+      branch: v0.56.0
       dir: docs
     - repo: https://github.com/inspektor-gadget/inspektor-gadget.git
       name: main
