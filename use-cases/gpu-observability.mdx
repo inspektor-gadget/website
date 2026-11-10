@@ -1,0 +1,633 @@
+---
+title: GPU Observability in Kubernetes
+description: Find the application paths allocating GPU memory with Inspektor Gadget, and connect profiles to workload activity and device state.
+slug: gpu-observability
+order: 0
+gadget: profile_cuda, top_cuda_memory, gpu_top, gpu_top_per_pid
+icon: memory
+platforms: [kubernetes]
+signals: [profiles, metrics]
+integrations: [pyroscope, prometheus, opentelemetry]
+domains: [performance, reliability]
+methods: [profile, top]
+tags: [Kubernetes, GPU, CUDA, Profiles, Metrics, Pyroscope, Prometheus, Grafana]
+---
+
+**Which application paths are allocating GPU memory? Is growing memory usage
+expected caching, or something to investigate? Do we need another GPU, or
+better visibility into the capacity we already have?**
+
+Device metrics alone cannot answer these questions. Inspektor Gadget captures
+CUDA allocation call stacks without changing application code, resolves them
+into profiles, and adds Kubernetes workload context. Combine those profiles
+with allocation/free activity and driver-reported state to investigate what
+your workload is doing.
+
+<!-- truncate -->
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 650" width="100%" role="img" aria-labelledby="gpu-diagram-title gpu-diagram-description" fontFamily="'URW Gothic', 'Century Gothic', sans-serif">
+  <title id="gpu-diagram-title">Three complementary views of GPU workloads</title>
+  <desc id="gpu-diagram-description">Inspektor Gadget captures CUDA allocation origins with profile_cuda, allocation and free activity with top_cuda_memory, and driver-reported state through the GPU bridge and gpu_top gadgets. Profiles go to Pyroscope, metrics go to Prometheus, and Grafana brings the three views together.</desc>
+  <defs>
+    <marker id="gpu-diagram-arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M2 2 L10 6 L2 10" fill="none" stroke="#f72e5c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </marker>
+  </defs>
+  <rect width="1100" height="650" rx="20" fill="#ffffff" />
+  <rect x="10" y="10" width="680" height="550" rx="20" fill="none" stroke="#00bf91" strokeWidth="3" strokeDasharray="11 11" strokeLinecap="round" />
+  <g fill="#f72e5c" textAnchor="middle">
+    <text x="350" y="49" fontSize="30" fontWeight="bold">Inspektor Gadget</text>
+    <text x="350" y="84" fontSize="23">Collect, resolve stacks, add Kubernetes context</text>
+
+    <rect x="35" y="115" width="220" height="110" rx="14" fill="#ffe6ec" />
+    <text x="145" y="158" fontSize="24">CUDA allocations</text>
+    <text x="145" y="194" fontSize="23">Capture call stacks</text>
+    <rect x="305" y="115" width="360" height="110" rx="14" fill="#ffd7e1" />
+    <text x="485" y="157" fontSize="29" fontWeight="bold">profile_cuda</text>
+    <text x="485" y="195" fontSize="24">Origins: bytes by call stack</text>
+
+    <rect x="35" y="255" width="220" height="110" rx="14" fill="#ffe6ec" />
+    <text x="145" y="298" fontSize="28">CUDA calls</text>
+    <text x="145" y="334" fontSize="24">Allocate / free</text>
+    <rect x="305" y="255" width="360" height="110" rx="14" fill="#ffd7e1" />
+    <text x="485" y="297" fontSize="29" fontWeight="bold">top_cuda_memory</text>
+    <text x="485" y="335" fontSize="24">Activity: bytes and calls</text>
+
+    <rect x="35" y="395" width="220" height="110" rx="14" fill="#ffe6ec" />
+    <text x="145" y="438" fontSize="28">GPU bridge</text>
+    <text x="145" y="474" fontSize="24">Driver / NVML</text>
+    <rect x="305" y="395" width="360" height="110" rx="14" fill="#ffd7e1" />
+    <text x="485" y="437" fontSize="24" fontWeight="bold">gpu_top / gpu_top_per_pid</text>
+    <text x="485" y="475" fontSize="24">State: memory and activity</text>
+
+    <rect x="755" y="115" width="280" height="110" rx="14" fill="#ffe6ec" />
+    <text x="895" y="157" fontSize="30" fontWeight="bold">Pyroscope</text>
+    <text x="895" y="195" fontSize="24">OTLP profiles</text>
+    <rect x="755" y="325" width="280" height="110" rx="14" fill="#ffe6ec" />
+    <text x="895" y="367" fontSize="30" fontWeight="bold">Prometheus</text>
+    <text x="895" y="405" fontSize="24">Counters and gauges</text>
+    <rect x="755" y="520" width="280" height="100" rx="14" fill="#ffd7e1" />
+    <text x="895" y="560" fontSize="30" fontWeight="bold">Grafana</text>
+    <text x="895" y="597" fontSize="24">All three views</text>
+  </g>
+  <g fill="none" stroke="#f72e5c" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" markerEnd="url(#gpu-diagram-arrow)">
+    <path d="M265 170 H295" />
+    <path d="M265 310 H295" />
+    <path d="M265 450 H295" />
+    <path d="M700 170 H743" />
+    <path d="M700 310 L743 355" />
+    <path d="M700 450 L743 405" />
+    <path d="M1035 170 H1070 Q1085 170 1085 185 V465 Q1085 480 1070 480 H980 Q965 480 965 495 V508" />
+    <path d="M825 435 V508" />
+  </g>
+</svg>
+
+:::note Three complementary views
+
+Profiles show **where allocations originate**; counters show **allocation and
+free activity**; gauges show **reported memory and GPU activity**. They measure
+different things: do not add or reconcile their totals. Device-wide readings
+have no pod ownership; process readings and CUDA observations carry workload
+context.
+
+:::
+
+## 1. Prepare the cluster
+
+Use a Kubernetes cluster with working NVIDIA GPU workers and permission to
+deploy Inspektor Gadget's privileged DaemonSet.
+
+Check which workers advertise NVIDIA GPU resources:
+
+```bash
+kubectl get nodes \
+  -o custom-columns='NAME:.metadata.name,GPU:.status.allocatable.nvidia\.com/gpu'
+```
+
+## 2. Connect the observability backends
+
+Use your existing **Pyroscope, Prometheus, and Grafana**, or install an
+evaluation stack:
+
+```bash
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+```
+
+Create the two values files:
+
+<details>
+<summary>pyroscope-values.yaml</summary>
+
+```yaml
+architecture:
+  microservices:
+    enabled: false
+  storage:
+    v1: false
+    v2: true
+alloy:
+  enabled: false
+agent:
+  enabled: false
+minio:
+  enabled: false
+pyroscope:
+  replicaCount: 1
+  image:
+    tag: "2.4.3"
+  extraArgs:
+    log.level: info
+  persistence:
+    enabled: true
+    size: 10Gi
+  structuredConfig:
+    storage:
+      backend: filesystem
+```
+
+</details>
+
+<details>
+<summary>monitoring-values.yaml</summary>
+
+```yaml
+grafana:
+  plugins:
+    - grafana-pyroscope-app
+  additionalDataSources:
+    - name: Pyroscope
+      uid: local-pyroscope
+      type: grafana-pyroscope-datasource
+      access: proxy
+      url: http://pyroscope.monitoring.svc.cluster.local:4040
+prometheus:
+  prometheusSpec:
+    podMonitorSelector:
+      matchLabels:
+        release: monitoring
+    podMonitorNamespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: monitoring
+extraManifests:
+  - apiVersion: monitoring.coreos.com/v1
+    kind: PodMonitor
+    metadata:
+      name: gadget-gpu
+      namespace: monitoring
+      labels:
+        release: monitoring
+    spec:
+      labelLimit: 63
+      labelNameLengthLimit: 511
+      labelValueLengthLimit: 1023
+      namespaceSelector:
+        matchNames:
+          - gadget
+      selector:
+        matchLabels:
+          k8s-app: gadget
+      podMetricsEndpoints:
+        - path: /metrics
+          interval: 15s
+          relabelings:
+            - sourceLabels: [__meta_kubernetes_pod_container_name]
+              action: keep
+              regex: gadget
+            - sourceLabels: [__meta_kubernetes_pod_ip]
+              targetLabel: __address__
+              regex: '(.+)'
+              replacement: '$1:2224'
+            - sourceLabels: [__meta_kubernetes_pod_ip]
+              targetLabel: __address__
+              regex: '(.+:.*)'
+              replacement: '[$1]:2224'
+            - sourceLabels: [__meta_kubernetes_pod_node_name]
+              targetLabel: instance
+          metricRelabelings:
+            - targetLabel: job
+              replacement: inspektor-gadget
+```
+
+</details>
+
+```bash
+helm upgrade --install pyroscope grafana/pyroscope \
+  --version 2.4.3 -n monitoring --create-namespace \
+  -f pyroscope-values.yaml --wait --timeout 10m
+helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
+  --version 92.21.2 -n monitoring --create-namespace \
+  -f monitoring-values.yaml --wait --timeout 10m
+```
+
+This uses **Pyroscope 2.4.3**, the latest release at the time of writing.
+The Pyroscope values deploy one instance with filesystem storage and a 10 GiB
+PVC, requiring a default StorageClass. The monitoring values provision
+Grafana's Pyroscope data source and a standard Prometheus Operator
+`PodMonitor` that scrapes **every Gadget pod** on port `2224`.
+These are evaluation settings, not a highly available production deployment.
+
+:::tip Already have observability backends?
+
+For existing backends, skip these installations. Copy the `PodMonitor` under
+`extraManifests` into your monitoring configuration, adjusting its namespace
+and `release` label to match your Prometheus monitor selectors. Without the
+Operator, configure equivalent pod discovery for `k8s-app=gadget` in namespace
+`gadget`, keeping the `gadget` container, scraping each pod IP on port `2224`,
+and preserving the worker name as `instance`. Do not scrape through a
+load-balanced Service.
+
+Add a Pyroscope data source to existing Grafana using its HTTP **query**
+endpoint. The collector needs the OTLP profiles **ingestion** endpoint; for
+distributed Pyroscope this is the distributor/write endpoint, not the query
+frontend.
+
+:::
+
+## 3. Start Inspektor Gadget
+
+Create `inspektor-gadget-values.yaml`:
+
+<details>
+<summary>inspektor-gadget-values.yaml</summary>
+
+```yaml
+hostPID: true
+nodeSelector:
+  kubernetes.io/os: linux
+bridges:
+  gpu:
+    enabled: true
+    accessMode: toolkit-env
+    pollInterval: 100ms
+config:
+  operator:
+    otel-metrics:
+      otel-metrics-listen: true
+      otel-metrics-listen-address: "0.0.0.0:2224"
+    otel-profiles:
+      exporters:
+        pyroscope-exporter:
+          exporter: otlp-grpc
+          compression: gzip
+          endpoint: pyroscope.monitoring.svc.cluster.local:4040
+          insecure: true
+  gadgetConfigMaps:
+    - name: gpu-memory-profiles
+      imageName: ghcr.io/inspektor-gadget/gadget/profile_cuda:v0.58.0
+      timeout: 0
+      paramValues:
+        operator.KubeManager.all-namespaces: "true"
+        operator.oci.annotate: "allocs.k8s.podName:profiles.sample-attribute=true,allocs.k8s.namespace:profiles.sample-attribute=true"
+        operator.oci.ebpf.collect-otel-stack: "true"
+        operator.oci.ebpf.collect-ustack: "true"
+        operator.otel-profiles.otel-profiles-exporter: pyroscope-exporter
+        operator.otel-profiles.otel-profiles-sanitize-labels: "true"
+        operator.ustack.symbolizers: otel-ebpf-profiler
+    - name: gpu-memory-metrics
+      imageName: ghcr.io/inspektor-gadget/gadget/top_cuda_memory:v0.58.0
+      timeout: 0
+      paramValues:
+        operator.KubeManager.all-namespaces: "true"
+        operator.oci.annotate: "libcuda_mem_stats.k8s.podName:metrics.type=key,libcuda_mem_stats.k8s.namespace:metrics.type=key,libcudart_mem_stats.k8s.podName:metrics.type=key,libcudart_mem_stats.k8s.namespace:metrics.type=key"
+        operator.otel-metrics.otel-metrics-name: "libcuda_mem_stats:libcuda_mem_stats,libcudart_mem_stats:libcudart_mem_stats"
+    - name: gpu-top
+      imageName: ghcr.io/inspektor-gadget/gadget/gpu_top:v0.58.0
+      timeout: 0
+      paramValues:
+        operator.oci.annotate: "gpu_top:metrics.collect=true,gpu_top.device:metrics.type=key,gpu_top.sm_util_pct:metrics.type=gauge,gpu_top.mem_util_pct:metrics.type=gauge,gpu_top.mem_used_raw:metrics.type=gauge,gpu_top.mem_total_raw:metrics.type=gauge,gpu_top.pcie_rx_kbps:metrics.type=gauge,gpu_top.pcie_tx_kbps:metrics.type=gauge"
+        operator.otel-metrics.otel-metrics-name: "gpu_top:gpu-top"
+    - name: gpu-top-per-pid
+      imageName: ghcr.io/inspektor-gadget/gadget/gpu_top_per_pid:v0.58.0
+      timeout: 0
+      paramValues:
+        operator.KubeManager.all-namespaces: "true"
+        operator.oci.annotate: "gpu_top_per_pid:metrics.collect=true,gpu_top_per_pid.proc.pid:metrics.type=key,gpu_top_per_pid.proc.comm:metrics.type=key,gpu_top_per_pid.k8s.podName:metrics.type=key,gpu_top_per_pid.k8s.namespace:metrics.type=key,gpu_top_per_pid.runtime.containerName:metrics.type=key,gpu_top_per_pid.gpu_device_primary:metrics.type=key,gpu_top_per_pid.mem_used_raw:metrics.type=gauge,gpu_top_per_pid.sm_util_pct_max:metrics.type=gauge,gpu_top_per_pid.mem_util_pct_max:metrics.type=gauge,gpu_top_per_pid.device_count:metrics.type=gauge"
+        operator.otel-metrics.otel-metrics-name: "gpu_top_per_pid:gpu-top-per-pid"
+```
+
+</details>
+
+The values start `profile_cuda`, `top_cuda_memory`, `gpu_top`, and
+`gpu_top_per_pid` continuously on Linux workers. They enable stack collection,
+symbolization, and pod/namespace enrichment, then export profiles to Pyroscope
+and metrics to Prometheus.
+
+For existing Pyroscope, change
+`config.operator.otel-profiles.exporters.pyroscope-exporter.endpoint` to its
+ingestion address. The example uses
+`pyroscope.monitoring.svc.cluster.local:4040`. Label sanitization is enabled so
+Pyroscope 2.x receives sample attributes such as `k8s_podName`,
+`k8s_namespace`, and `proc_comm`, matching the metric labels.
+
+:::note Choose the bridge access mode
+
+The bridge uses `toolkit-env` to access NVIDIA telemetry without reserving a
+GPU. If your NVIDIA runtime hook does not run for this container, change
+`bridges.gpu.accessMode` to `hostpath`; set `runtimeClassName` if your runtime
+requires it. Adjust worker tolerations and runtime sockets as needed.
+
+:::
+
+```bash
+helm upgrade --install gadget \
+  oci://ghcr.io/inspektor-gadget/inspektor-gadget/charts/gadget \
+  --version 0.58.0 -n gadget --create-namespace \
+  -f inspektor-gadget-values.yaml --wait --timeout 10m
+
+kubectl get pods -n gadget -l k8s-app=gadget -o wide
+kubectl get configmaps -n gadget -l type=gadget-instance
+```
+
+Expect one ready pod per Linux worker and four instance ConfigMaps.
+Inspektor Gadget and its Gadget images use **v0.58.0**, which supports the
+current Pyroscope OTLP profiles protocol. Merge the values with your current
+configuration if Gadget is already installed.
+
+:::note Keep telemetry private
+
+The example uses cluster-internal endpoints without TLS. Restrict access with
+network policies; configure TLS and required access controls for external
+backends.
+
+:::
+
+## 4. Explore your workload in the dashboard
+
+:::tip Capture initialization, not just requests
+
+Start or exercise your CUDA workload **after collection starts**. For model
+servers, capture initialization as well as requests: model loading and KV-cache
+setup can account for much of the allocation volume. Only restart workloads
+when it is safe; allocations made before attachment cannot be reconstructed.
+
+:::
+
+For the evaluation stack, open Grafana at `http://localhost:3000`:
+
+```bash
+kubectl port-forward -n monitoring svc/monitoring-grafana 3000:80
+```
+
+In another terminal, retrieve the generated password and log in as `admin`:
+
+```bash
+kubectl get secret -n monitoring monitoring-grafana \
+  -o jsonpath='{.data.admin-password}' | base64 --decode; echo
+```
+
+### Import the GPU observability dashboard
+
+In Grafana, open **Dashboards -> New -> Import**, paste the JSON below, and
+select **Load**, then **Import**. Choose your Prometheus and Pyroscope data
+sources in the dashboard's dropdowns, select the CUDA allocation profile type
+(`process_cuda`, allocation bytes), and filter by namespace and pod.
+
+The dashboard combines allocation profiles, allocation/free activity, process
+memory and utilization, and device-level PCIe throughput. It uses standard
+Prometheus and Pyroscope data sources and does not require a cluster label.
+Namespace and pod choices come from observed CUDA activity or process metrics.
+
+<details>
+<summary>Importable Grafana dashboard JSON</summary>
+
+```json
+{
+  "id": null,
+  "uid": "gpu-observability",
+  "title": "GPU Observability",
+  "description": "CUDA allocation origins, workload allocation/free activity, and NVIDIA-reported state collected by Inspektor Gadget on Kubernetes.",
+  "schemaVersion": 42,
+  "version": 1,
+  "editable": true,
+  "tags": ["GPU", "Kubernetes", "Inspektor Gadget"],
+  "timezone": "browser",
+  "time": {"from": "now-1h", "to": "now"},
+  "refresh": "",
+  "links": [],
+  "templating": {
+    "list": [
+      {
+        "name": "prom_ds", "label": "Prometheus", "type": "datasource",
+        "query": "prometheus", "refresh": 1, "current": {}
+      },
+      {
+        "name": "pyroscope_ds", "label": "Pyroscope", "type": "datasource",
+        "query": "grafana-pyroscope-datasource", "refresh": 1, "current": {}
+      },
+      {
+        "name": "profileType", "label": "Profile type", "type": "query",
+        "datasource": {"type": "grafana-pyroscope-datasource", "uid": "${pyroscope_ds}"},
+        "query": {"refId": "A", "type": "profileType"},
+        "refresh": 2, "multi": false, "includeAll": false, "current": {}, "options": []
+      },
+      {
+        "name": "namespace", "label": "Namespace", "type": "query",
+        "datasource": {"type": "prometheus", "uid": "${prom_ds}"},
+        "query": {
+          "qryType": 1,
+          "query": "label_values({job=\"inspektor-gadget\",otel_scope_name=~\"gpu-top-per-pid|libcuda_mem_stats\",k8s_namespace!=\"\"}, k8s_namespace)",
+          "refId": "namespace"
+        },
+        "refresh": 2, "sort": 1, "multi": true, "includeAll": true,
+        "allValue": ".*", "current": {"text": "All", "value": "$__all"}
+      },
+      {
+        "name": "pod", "label": "Pod", "type": "query",
+        "datasource": {"type": "prometheus", "uid": "${prom_ds}"},
+        "query": {
+          "qryType": 1,
+          "query": "label_values({job=\"inspektor-gadget\",otel_scope_name=~\"gpu-top-per-pid|libcuda_mem_stats\",k8s_namespace=~\"${namespace:regex}\",k8s_podName!=\"\"}, k8s_podName)",
+          "refId": "pod"
+        },
+        "refresh": 2, "sort": 1, "multi": true, "includeAll": true,
+        "allValue": ".*", "current": {"text": "All", "value": "$__all"}
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 13, "type": "text", "transparent": true,
+      "gridPos": {"h": 4, "w": 24, "x": 0, "y": 0},
+      "options": {
+        "mode": "markdown",
+        "content": "### GPU Observability with Inspektor Gadget\n\n**Origins:** allocation call stacks. **Activity:** observed allocations and frees. **State:** driver-reported memory and utilization.\n\nProfiles measure allocation volume, not live memory or GPU execution time. Collection begins when the gadgets attach; do not reconcile totals between collectors."
+      }
+    },
+    {
+      "id": 5, "title": "CUDA Allocation Profiles", "type": "flamegraph",
+      "description": "Allocation bytes attributed to call stacks for the selected workloads. Select the CUDA allocation profile type. These are not live-memory or GPU kernel execution profiles.",
+      "gridPos": {"h": 12, "w": 24, "x": 0, "y": 28},
+      "datasource": {"type": "grafana-pyroscope-datasource", "uid": "${pyroscope_ds}"},
+      "fieldConfig": {"defaults": {}, "overrides": []},
+      "options": {"showFlameGraphOnly": false},
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {"type": "grafana-pyroscope-datasource", "uid": "${pyroscope_ds}"},
+          "queryType": "profile", "profileTypeId": "${profileType}",
+          "labelSelector": "{k8s_namespace=~\"${namespace:regex}\",k8s_podName=~\"${pod:regex}\"}",
+          "groupBy": [], "spanSelector": [], "includeExemplars": false
+        }
+      ]
+    },
+    {
+      "id": 3, "title": "CUDA Allocation and Free Activity", "type": "timeseries",
+      "description": "Driver API device-memory bytes allocated or freed during each query interval. Runtime API counters are intentionally excluded to avoid double-counting. Grouped by node, namespace, pod, and PID.",
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 20},
+      "datasource": {"type": "prometheus", "uid": "${prom_ds}"},
+      "fieldConfig": {"defaults": {"unit": "bytes"}, "overrides": []},
+      "options": {
+        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["last", "max"]},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "refId": "A", "range": true,
+          "expr": "sum by (instance, k8s_namespace, k8s_podName, pid) (increase(mem_alloc_bytes_total{job=\"inspektor-gadget\",otel_scope_name=\"libcuda_mem_stats\",k8s_namespace=~\"${namespace:regex}\",k8s_podName=~\"${pod:regex}\",host_raw=\"0\"}[$__rate_interval]))",
+          "legendFormat": "{{instance}} / {{k8s_namespace}} / {{k8s_podName}} / PID {{pid}} allocated"
+        },
+        {
+          "refId": "B", "range": true,
+          "expr": "sum by (instance, k8s_namespace, k8s_podName, pid) (increase(mem_free_bytes_total{job=\"inspektor-gadget\",otel_scope_name=\"libcuda_mem_stats\",k8s_namespace=~\"${namespace:regex}\",k8s_podName=~\"${pod:regex}\",host_raw=\"0\"}[$__rate_interval]))",
+          "legendFormat": "{{instance}} / {{k8s_namespace}} / {{k8s_podName}} / PID {{pid}} freed"
+        },
+        {
+          "refId": "C", "range": true,
+          "expr": "sum by (instance, k8s_namespace, k8s_podName, pid) (increase(mem_implicit_free_bytes_total{job=\"inspektor-gadget\",otel_scope_name=\"libcuda_mem_stats\",k8s_namespace=~\"${namespace:regex}\",k8s_podName=~\"${pod:regex}\",host_raw=\"0\"}[$__rate_interval]))",
+          "legendFormat": "{{instance}} / {{k8s_namespace}} / {{k8s_podName}} / PID {{pid}} implicitly freed"
+        }
+      ]
+    },
+    {
+      "id": 8, "title": "GPU Memory Usage", "type": "timeseries",
+      "description": "NVML-reported memory per process, summed across its devices. A primary device of 255 denotes a multi-device process, not a physical GPU index.",
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 4},
+      "datasource": {"type": "prometheus", "uid": "${prom_ds}"},
+      "fieldConfig": {"defaults": {"unit": "bytes"}, "overrides": []},
+      "options": {"legend": {"displayMode": "table", "placement": "bottom", "calcs": ["last", "max"]}},
+      "targets": [
+        {
+          "refId": "A", "range": true,
+          "expr": "max by (instance, gpu_device_primary, k8s_namespace, k8s_podName, proc_pid) (mem_used_raw_bytes{job=\"inspektor-gadget\",otel_scope_name=\"gpu-top-per-pid\",k8s_namespace=~\"${namespace:regex}\",k8s_podName!=\"\",k8s_podName=~\"${pod:regex}\"})",
+          "legendFormat": "{{instance}} / {{k8s_namespace}} / {{k8s_podName}} / PID {{proc_pid}}"
+        }
+      ]
+    },
+    {
+      "id": 9, "title": "GPU Busy Time", "type": "timeseries",
+      "description": "Peak process compute utilization across its devices during the latest NVML sampling period. Not SM occupancy or a dashboard-range average.",
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 4},
+      "datasource": {"type": "prometheus", "uid": "${prom_ds}"},
+      "fieldConfig": {"defaults": {"min": 0, "max": 100, "unit": "percent"}, "overrides": []},
+      "options": {"legend": {"displayMode": "table", "placement": "bottom", "calcs": ["last", "max"]}},
+      "targets": [
+        {
+          "refId": "A", "range": true,
+          "expr": "max by (instance, k8s_namespace, k8s_podName, proc_pid) (sm_util_pct_max_percent{job=\"inspektor-gadget\",otel_scope_name=\"gpu-top-per-pid\",k8s_namespace=~\"${namespace:regex}\",k8s_podName!=\"\",k8s_podName=~\"${pod:regex}\"})",
+          "legendFormat": "{{instance}} / {{k8s_namespace}} / {{k8s_podName}} / PID {{proc_pid}}"
+        }
+      ]
+    },
+    {
+      "id": 10, "title": "GPU Memory Busy Time", "type": "timeseries",
+      "description": "Peak process memory-bus activity across its devices during the latest NVML sampling period. Not VRAM capacity used or bandwidth saturation.",
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 4},
+      "datasource": {"type": "prometheus", "uid": "${prom_ds}"},
+      "fieldConfig": {"defaults": {"min": 0, "max": 100, "unit": "percent"}, "overrides": []},
+      "options": {"legend": {"displayMode": "table", "placement": "bottom", "calcs": ["last", "max"]}},
+      "targets": [
+        {
+          "refId": "A", "range": true,
+          "expr": "max by (instance, k8s_namespace, k8s_podName, proc_pid) (mem_util_pct_max_percent{job=\"inspektor-gadget\",otel_scope_name=\"gpu-top-per-pid\",k8s_namespace=~\"${namespace:regex}\",k8s_podName!=\"\",k8s_podName=~\"${pod:regex}\"})",
+          "legendFormat": "{{instance}} / {{k8s_namespace}} / {{k8s_podName}} / PID {{proc_pid}}"
+        }
+      ]
+    },
+    {
+      "id": 11, "title": "Device PCIe Throughput", "type": "timeseries",
+      "description": "Total traffic on devices associated with selected workloads through single-device process readings. Shared-device traffic is not per-pod traffic. Multi-device processes cannot be mapped from their primary-device sentinel and are excluded. RX is received by the GPU; TX is sent by it. NVML KB/s readings are converted to bytes/s.",
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 12},
+      "datasource": {"type": "prometheus", "uid": "${prom_ds}"},
+      "fieldConfig": {"defaults": {"unit": "Bps"}, "overrides": []},
+      "options": {
+        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["last", "max"]},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "refId": "A", "range": true,
+          "expr": "(max by (instance, device) (pcie_rx_kbps{job=\"inspektor-gadget\",otel_scope_name=\"gpu-top\"}) * 1024) and on (instance, device) label_replace(max by (instance, gpu_device_primary) (device_count{job=\"inspektor-gadget\",otel_scope_name=\"gpu-top-per-pid\",k8s_namespace=~\"${namespace:regex}\",k8s_podName!=\"\",k8s_podName=~\"${pod:regex}\",gpu_device_primary!=\"\",gpu_device_primary!=\"255\"} == 1), \"device\", \"$1\", \"gpu_device_primary\", \"([0-9]+)\")",
+          "legendFormat": "{{instance}} / GPU {{device}} RX"
+        },
+        {
+          "refId": "B", "range": true,
+          "expr": "(max by (instance, device) (pcie_tx_kbps{job=\"inspektor-gadget\",otel_scope_name=\"gpu-top\"}) * 1024) and on (instance, device) label_replace(max by (instance, gpu_device_primary) (device_count{job=\"inspektor-gadget\",otel_scope_name=\"gpu-top-per-pid\",k8s_namespace=~\"${namespace:regex}\",k8s_podName!=\"\",k8s_podName=~\"${pod:regex}\",gpu_device_primary!=\"\",gpu_device_primary!=\"255\"} == 1), \"device\", \"$1\", \"gpu_device_primary\", \"([0-9]+)\")",
+          "legendFormat": "{{instance}} / GPU {{device}} TX"
+        }
+      ]
+    }
+  ]
+}
+```
+
+</details>
+
+:::note Device traffic is not workload traffic
+
+The PCIe panel filters devices using the selected namespace and pod's
+single-device process readings, matching both node and device index. Its values
+remain total device traffic, including other workloads sharing that GPU.
+Processes using multiple GPUs report a sentinel primary-device index rather
+than a complete device list, so this panel cannot map their devices. Devices
+without a matching process reading are not shown.
+
+:::
+
+In the dashboard, select the namespace, pod, and time range you captured.
+
+{/* TODO: Add a screenshot of the GPU Memory Usage, GPU Busy Time, and GPU Memory Busy Time panels. */}
+
+{/* TODO: Add a screenshot of the Device PCIe Throughput panel. */}
+
+{/* TODO: Add a screenshot of the CUDA Allocation and Free Activity panel. */}
+
+Scroll to **CUDA Allocation Profiles** below the allocation/free activity panel.
+
+[![Example vLLM CUDA allocation flamegraph showing model-loading and KV-cache initialization paths.](/media/gpu-flamegraph-overview.png)](/media/gpu-flamegraph-overview.png)
+
+{/* TODO: Add the flamegraph screenshot source link. */}
+
+*Example vLLM allocation capture in a Grafana dashboard. Click either screenshot
+to view it at full size.*
+
+Follow wide stacks into the application. For example, a model server might
+show a path through KV-cache initialization into PyTorch and CUDA. That makes
+cache setup an identifiable allocation origin, rather than an unexplained
+device-memory number.
+
+[![Focused vLLM allocation flamegraph showing the call path into GPUModelRunner._allocate_kv_cache_tensors.](/media/gpu-flamegraph-kv-cache.png)](/media/gpu-flamegraph-kv-cache.png)
+
+In this capture, `GPUModelRunner._allocate_kv_cache_tensors` accounts for
+approximately **66.3 GiB of allocation volume**. That identifies the allocation
+origin, not how much memory remains live.
+
+:::tip Read the allocation flamegraph
+
+A bar's width is **allocated bytes**, not execution time or currently live
+memory. **Total** includes child calls; **self** attributes bytes directly to
+that function. Look for large self allocations, not just wide parents.
+Resolved native and supported language frames depend on stack collection and
+symbolization; unknown frames do not establish an application-level cause.
+
+:::
+
+## Related documentation
+
+- [CUDA allocation profiles](https://inspektor-gadget.io/docs/latest/gadgets/profile_cuda)
+- [CUDA allocation/free metrics](https://inspektor-gadget.io/docs/latest/gadgets/top_cuda_memory)
+- [GPU bridge and access modes](https://inspektor-gadget.io/docs/latest/reference/gpu-ebpf-bridge)
+- [OpenTelemetry profile export](https://inspektor-gadget.io/docs/latest/reference/export-profiles)
+
+{/* TODO: Add the GPU dashboard and flamegraph guide link. */}
